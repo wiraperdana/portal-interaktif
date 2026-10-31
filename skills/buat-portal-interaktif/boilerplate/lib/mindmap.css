@@ -1,0 +1,110 @@
+/*!
+ * mindmap-html v0.1.0, MIT.
+ * Semua warna lewat variabel --mmx-*. Timpa di :root atau di wadah untuk menyesuaikan tema.
+ */
+:root {
+  --mmx-surface: #ffffff;
+  --mmx-ink: #18181b;
+  --mmx-ink-2: #3f3f46;
+  --mmx-muted: #5f5f68;
+  --mmx-line: #e4e4e7;
+  --mmx-line-strong: #d4d4d8;
+  --mmx-root-bg: #18181b;
+  --mmx-root-ink: #fafafa;
+  --mmx-dot: #e4e4e7;
+  --mmx-radius: 14px;
+  --mmx-font: inherit;
+  --mmx-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --mmx-shadow: 0 1px 2px rgb(24 24 27 / .05), 0 8px 24px rgb(24 24 27 / .06);
+  /* palet cabang utama, diambil berurutan */
+  --mmx-c1: #2a78d6; --mmx-c2: #eb6834; --mmx-c3: #1baf7a; --mmx-c4: #c98a00;
+  --mmx-c5: #d55181; --mmx-c6: #008300; --mmx-c7: #6250d6; --mmx-c8: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --mmx-surface: #18181b; --mmx-ink: #f4f4f5; --mmx-ink-2: #d4d4d8; --mmx-muted: #a1a1aa;
+    --mmx-line: #2c2c31; --mmx-line-strong: #3a3a40; --mmx-root-bg: #f4f4f5; --mmx-root-ink: #111113; --mmx-dot: #2c2c31;
+    --mmx-c1: #3987e5; --mmx-c2: #d95926; --mmx-c3: #199e70; --mmx-c4: #c98500;
+    --mmx-c5: #d55181; --mmx-c6: #2f9e2f; --mmx-c7: #9085e9; --mmx-c8: #e66767;
+  }
+}
+
+.mmx {
+  position: relative; overflow-x: auto; overflow-y: hidden; font-family: var(--mmx-font); color: var(--mmx-ink);
+  border: 1px solid var(--mmx-line); border-radius: var(--mmx-radius); background-color: var(--mmx-surface);
+  background-image: radial-gradient(var(--mmx-dot) 1px, transparent 1px); background-size: 22px 22px;
+}
+.mmx-canvas { position: absolute; top: 0; left: 0; transform-origin: top left; }
+.mmx-links { position: absolute; inset: 0; overflow: visible; }
+
+/* node */
+.mmx-node {
+  position: absolute; display: flex; flex-direction: column; gap: 1px; text-align: left; text-decoration: none;
+  font: inherit; color: var(--mmx-ink); background: none; border: 0; padding: 0; cursor: default; white-space: normal;
+}
+a.mmx-node, button.mmx-node { cursor: pointer; }
+.mmx-num { font: 600 11px var(--mmx-mono); color: var(--c, var(--mmx-muted)); letter-spacing: .02em; white-space: nowrap; flex: none; }
+.mmx-label { line-height: 1.3; }
+.mmx-note { font-size: 12.5px; line-height: 1.3; color: var(--mmx-muted); }
+a.mmx-node:hover .mmx-label, button.mmx-node:hover .mmx-label { color: var(--c, var(--mmx-ink)); }
+.mmx-node:focus-visible { outline: 2px solid var(--c, var(--mmx-ink)); outline-offset: 3px; border-radius: 6px; }
+
+/* akar */
+.mmx-node.d0 {
+  max-width: 220px; padding: 14px 18px; border-radius: 14px; background: var(--mmx-root-bg); color: var(--mmx-root-ink);
+  box-shadow: var(--mmx-shadow); text-align: center; align-items: center;
+}
+.mmx-node.d0 .mmx-label { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.mmx-node.d0 .mmx-note { color: inherit; opacity: .72; }
+/* cabang utama: kapsul */
+.mmx-node.d1 {
+  max-width: 200px; padding: 8px 14px; border-radius: 999px; background: var(--mmx-surface);
+  border: 2px solid var(--c); box-shadow: 0 1px 2px rgb(0 0 0 / .06); flex-direction: row; align-items: baseline; gap: 8px;
+}
+.mmx-node.d1 .mmx-label { font-size: 14.5px; font-weight: 650; }
+.mmx-node.d1:hover { background: color-mix(in srgb, var(--c) 10%, var(--mmx-surface)); }
+/* anak cabang: teks bergaris bawah warna cabang */
+.mmx-node.d2 {
+  max-width: 200px; padding: 3px 4px 4px; border-bottom: 2px solid var(--c);
+  flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 0 6px;
+}
+.mmx-node.d2 .mmx-label { font-size: 14px; font-weight: 550; }
+.mmx-node.d2 .mmx-note { flex-basis: 100%; font-size: 12px; }
+.mmx-node.d1 .mmx-label, .mmx-node.d2 .mmx-label { flex: 1 1 0; min-width: 0; }
+/* daun */
+.mmx-node.d3 { max-width: 220px; padding: 2px 4px 3px; border-bottom: 1.25px solid color-mix(in srgb, var(--c) 55%, transparent); }
+.mmx-node.d3 .mmx-label { font-size: 12.5px; color: var(--mmx-ink-2); }
+.mmx-node.d3 .mmx-note { font-size: 12px; margin-top: 1px; }
+
+/* tombol lipat di ujung garis cabang */
+.mmx-fold {
+  position: absolute; z-index: 2; min-width: 18px; height: 18px; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; gap: 1px;
+  border-radius: 999px; border: 1.5px solid var(--c, var(--mmx-ink)); background: var(--mmx-surface); color: var(--c, var(--mmx-ink));
+  font: 600 12px/1 var(--mmx-mono); cursor: pointer;
+}
+.mmx-fold small { font-size: 10px; font-weight: 500; }
+.mmx-fold:hover { background: color-mix(in srgb, var(--c, var(--mmx-ink)) 12%, var(--mmx-surface)); }
+.mmx-fold.in-outline { position: static; flex: none; }
+
+/* satu tombol lipat/buka semua, ikonnya mengikuti keadaan */
+.mmx-all {
+  position: absolute; top: 6px; right: 6px; z-index: 3;
+  width: 34px; height: 34px; display: grid; place-items: center; cursor: pointer;
+  border-radius: 10px; border: 1px solid var(--mmx-line-strong); background: var(--mmx-surface); color: var(--mmx-ink);
+}
+.mmx-all:hover { background: color-mix(in srgb, var(--mmx-ink) 6%, var(--mmx-surface)); }
+
+/* kerangka untuk layar sempit */
+.mmx.is-outline { background-image: none; padding: 16px; overflow: visible; }
+.mmx.is-outline .mmx-all { top: 12px; right: 12px; }
+.mmo > .mmx-node.d0 { position: static; max-width: none; margin: 0 44px 14px 0; }
+.mmo ul { list-style: none; margin: 0; padding: 0; }
+.mmo .mmx-node { position: static; max-width: none; }
+.mmo-row { display: flex; align-items: center; gap: 8px; }
+.mmo-l1 { display: grid; gap: 14px; }
+.mmo-l1 > li { border-left: 3px solid var(--c); padding-left: 12px; }
+.mmo-l1 > li > .mmo-row > .mmx-node.d1 { display: inline-flex; border-radius: 999px; }
+.mmo-l2 { margin-top: 8px !important; display: grid; gap: 6px; }
+.mmo-l2 > li > .mmo-row > .mmx-node.d2 { display: inline-flex; }
+.mmo-l3 { margin: 4px 0 2px 10px !important; display: grid; gap: 4px; }
+@media (prefers-reduced-motion: no-preference) { .mmx-node, .mmx-fold, .mmx-all { transition: color .15s, background .15s; } }

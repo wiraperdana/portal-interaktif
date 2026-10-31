@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Portal belajar interaktif.">
+<title>Portal Belajar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<link rel="stylesheet" href="lib/mindmap.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Lewati navigasi</a>
+<div class="app">
+  <nav class="rail" id="rail" aria-label="Navigasi ringkas"></nav>
+  <aside class="sidebar" id="sidebar" aria-label="Navigasi">
+    <div class="topic-switch">
+      <button class="brand" id="topicButton" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="topicMenu">
+        <span class="brand-mark" id="brandMark"></span>
+        <span class="brand-text"><strong id="brandTitle"></strong><small id="brandSub"></small></span>
+        <i class="ph ph-caret-up-down" aria-hidden="true"></i>
+      </button>
+      <div class="topic-menu" id="topicMenu" hidden></div>
+    </div>
+    <nav class="primary-nav" id="primaryNav"></nav>
+    <div class="tree" id="moduleTree"></div>
+    <div class="sidebar-foot" id="sidebarProgress"></div>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <div class="crumbs" id="crumbs"></div>
+      <form class="search" id="searchForm" role="search">
+        <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+        <label class="sr" for="searchInput">Cari materi</label>
+        <input id="searchInput" type="search" placeholder="Cari konsep atau istilah" autocomplete="off">
+      </form>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Ganti tema terang atau gelap"><i class="ph ph-circle-half" aria-hidden="true"></i></button>
+    </header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="site-foot">
+      <p id="footSource"></p>
+      <p id="footNote">Portal pendamping belajar. Hasil latihan di sini tersimpan di peramban ini saja.</p>
+    </footer>
+  </div>
+</div>
+
+<button class="edge-toggle" id="edgeToggle" type="button" aria-controls="sidebar"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+
+<nav class="tabbar" id="tabbar" aria-label="Navigasi utama"></nav>
+
+<button class="ai-fab" id="aiFab" type="button" aria-controls="aiPanel" aria-expanded="false"><i class="ph ph-sparkle" aria-hidden="true"></i><span>Tanya AI</span></button>
+<section class="ai-panel" id="aiPanel" role="dialog" aria-label="Tanya AI" hidden>
+  <header><strong>Tanya AI</strong><span class="ai-actions"><a class="icon-btn" id="aiFull" href="#/tanya" aria-label="Buka Tanya AI layar penuh" title="Layar penuh"><i class="ph ph-arrows-out-simple" aria-hidden="true"></i></a><button class="icon-btn" id="aiClose" type="button" aria-label="Tutup"><i class="ph ph-x" aria-hidden="true"></i></button></span></header>
+  <div class="ai-body">
+    <p>Tanya AI belum tersambung di versi statis ini. Jawaban nyata membutuhkan backend yang membaca isi portal.</p>
+    <p class="muted" id="aiContext"></p>
+  </div>
+</section>
+
+<dialog class="slide-dialog" id="slideDialog" aria-label="Slide ringkasan">
+  <div class="slide-stage" id="slideStage"></div>
+  <div class="slide-controls">
+    <button class="icon-btn" id="slidePrev" type="button" aria-label="Slide sebelumnya"><i class="ph ph-arrow-left" aria-hidden="true"></i></button>
+    <span id="slideCount"></span>
+    <button class="icon-btn" id="slideNext" type="button" aria-label="Slide berikutnya"><i class="ph ph-arrow-right" aria-hidden="true"></i></button>
+    <form method="dialog"><button class="icon-btn" aria-label="Tutup slide"><i class="ph ph-x" aria-hidden="true"></i></button></form>
+  </div>
+</dialog>
+
+<dialog class="term-dialog" id="termDialog" aria-labelledby="termTitle">
+  <form method="dialog"><button class="icon-btn close" aria-label="Tutup"><i class="ph ph-x" aria-hidden="true"></i></button></form>
+  <h2 id="termTitle"></h2>
+  <p id="termBody"></p>
+</dialog>
+
+<!-- Isi portal: ganti tiga berkas ini untuk topik baru. Kode di app.js tidak perlu diubah. -->
+<script src="content.js"></script>
+<script src="images.js"></script>
+<script src="sims.js"></script>
+<script src="lib/mindmap.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
