@@ -17,6 +17,7 @@ Butuh `pip install playwright` dan `playwright install chromium-headless-shell`.
 | Scroll horizontal di 390 px | Pembaca HP tidak boleh menggeser layar ke samping |
 | Node mindmap bertumpuk | Label yang bertumpuk tidak terbaca |
 | Alur selesai modul | Lima jawaban benar plus penjelasan harus menandai modul selesai |
+| Notasi matematika | Rumus yang gagal dirender KaTeX, atau `$...$` yang tertinggal mentah |
 | Isi wajib | Kuis 5 x 5, field Inti lengkap, field wajib unit terisi |
 
 Untuk membandingkan dua versi portal, misalnya sebelum dan sesudah memperbarui boilerplate:
@@ -29,7 +30,7 @@ Mode ini mencetak rute yang jumlah unit, diagram, slide, simulasi, node mindmap,
 
 ## Lapis 2: manual
 
-Ambil tangkapan layar desktop (1360 px) dan HP (390 px) untuk beranda, satu modul utuh, kuis, dan Tanya AI. Lalu periksa:
+Rute modul adalah `#/modul/N`, unit `#/modul/N/p-K` (K mulai 0), kuis `#/modul/N/cek-soal`. Ambil tangkapan layar desktop (1360 px) dan HP (390 px) untuk beranda, satu modul utuh, kuis, dan Tanya AI. Lalu periksa:
 
 - [ ] Beranda menjelaskan topiknya dan manfaatnya dalam bahasa sehari-hari.
 - [ ] Mindmap topik terbaca saat semua cabang dibuka. Daun unit berdaftar (misalnya delapan ciri) tampil lengkap.
@@ -39,6 +40,8 @@ Ambil tangkapan layar desktop (1360 px) dan HP (390 px) untuk beranda, satu modu
 - [ ] Sebaran kunci kuis tidak menumpuk di satu huruf.
 - [ ] Mode gelap terbaca, termasuk mindmap dan slide.
 - [ ] Sidebar bisa dilipat, rail ikon punya tooltip, dan tombol `[` melipat sidebar.
+- [ ] Satu unit berumus dibuka di 390 px: rumus blok terbaca, tidak terpotong.
+- [ ] Daftar periksa `standar-a.md` terpenuhi: cakupan penuh, Kilas prasyarat, contoh angka per rumus, dan kuis berisi soal hitungan.
 - [ ] Tidak ada em dash di `content.js`: `grep -c $'\u2014' content.js` harus 0.
 - [ ] Istilah di judul, definisi, kamus, kuis, dan slide konsisten.
 

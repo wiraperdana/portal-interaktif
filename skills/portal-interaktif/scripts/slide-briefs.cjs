@@ -43,6 +43,9 @@ C.modules.forEach((m, i) => {
     const items = grid ? sl.grid.map(g => g[1]) : (sl.captions || (sl.points || []).map(p => plain(p[1])));
     const scenes = sl.scenes || [];
     if (scenes.length !== items.length) { console.warn(`LEWATI ${name}: slide.scenes ${scenes.length}, butuh ${items.length}`); skipped++; return; }
+    // Imagegen menggambar teks apa adanya, jadi LaTeX ($, \) di slide akan tercetak mentah. Slide wajib Unicode.
+    const slideText = [sl.heading, u.title, sl.takeaway, ...items, ...(sl.points || []).map(p => p[1])].join(' ');
+    if (/[$\\]/.test(slideText)) { console.warn(`LEWATI ${name}: teks slide memuat LaTeX ($ atau \\). Tulis notasinya dengan Unicode, lihat references/notasi-matematika.md`); skipped++; return; }
     const title = sl.heading || u.title, take = plain(sl.takeaway);
     const n = items.length, rows = n > 4 ? 2 : 1, cols = Math.ceil(n / rows);
     const layout = grid
@@ -50,7 +53,7 @@ C.modules.forEach((m, i) => {
       : `${n} illustrated panels from left to right connected by simple arrows, each panel with one small illustrated scene and a short caption directly under it.`;
     const body = items.map((t, j) => `${grid ? 'Card' : 'Panel'} ${j + 1}: ${scenes[j].replace(/\.\s*$/, '')}. ${grid ? 'Label' : 'Caption'}: '${t}'.`).join('\n');
     const allowed = [title, ...items, take].map(t => `'${t}'`).join(', ');
-    fs.writeFileSync(file, `Style: a polished educational infographic slide, landscape 16:9. Warm semi-realistic digital illustration that matches the attached reference image (${setting}). Clean off-white background, generous whitespace, ${accent} as the main accent color with a ${second} as the second color. Typography: clean modern sans-serif, large and highly legible.
+    fs.writeFileSync(file, `Style: a polished educational infographic slide, landscape 16:9. ${V.style || "Warm semi-realistic digital illustration"} that matches the attached reference image (${setting}). Any recurring character must look identical to the reference image: same face, hair, and clothing. Clean off-white background, generous whitespace, ${accent} as the main accent color with a ${second} as the second color. Typography: clean modern sans-serif, large and highly legible.
 Layout: the title at the top left. Below it, ${layout} At the bottom, one rounded highlighted box containing the takeaway sentence.
 
 Content:

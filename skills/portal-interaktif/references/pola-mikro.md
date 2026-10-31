@@ -25,6 +25,10 @@ Pola mikro adalah urutan tetap di dalam satu unit Pendalaman. Bayangkan resep ma
 
 Urutan contoh sebelum definisi itu disengaja. Pembaca yang sudah melihat kejadiannya akan membaca definisi sebagai penjelasan, bukan sebagai hafalan.
 
+## Unit Kilas prasyarat
+
+Bila sebuah modul memakai pengetahuan di atas SMA, misalnya perkalian matriks atau aturan logaritma, modul itu dibuka dengan unit berjudul "Kilas prasyarat: ...". Pola mikronya sama dengan unit lain. Isinya hanya yang dipakai di modul itu, dengan satu contoh angka. Pembaca yang sudah paham bisa melewatinya. Kenapa: tanpa unit ini, pembaca dari latar lain berhenti di rumus pertama yang ia tidak kenal. Lihat `standar-a.md`.
+
 ## Satu benang cerita
 
 Bagian Inti memakai satu tokoh dan satu situasi. Unit Pendalaman boleh memakai contoh lain, tetapi tetap di dunia yang mirip, supaya pembaca tidak berganti konteks terus-menerus. Contoh yang baik: toko roti untuk rantai pasok, belanja sepatu di marketplace untuk pasar digital.
@@ -43,6 +47,7 @@ Bagian Inti memakai satu tokoh dan satu situasi. Unit Pendalaman boleh memakai c
 ## Kuis
 
 - Soal berupa kasus singkat yang menuntut penerapan konsep, bukan menebak definisi.
+- Campur tiga jenis soal: konsep, hitungan, dan penalaran. Untuk topik kuantitatif, minimal dua soal hitungan.
 - Pengecoh diambil dari konsep yang sering tertukar di modul yang sama.
 - `why` menjelaskan kenapa jawaban benar itu benar, dan kenapa pengecoh terkuat keliru.
 - Kuis tampil satu soal per layar, dengan nomor soal, tombol Sebelumnya dan Berikutnya, dan layar Hasil.

@@ -2,14 +2,17 @@
 
 ## Pembaca sasaran: universal
 
-Tulis untuk orang yang tidak pernah ikut kelasnya. Patokannya: **lulusan SMA harus bisa paham dan mendapat nilai A** hanya dari portal ini.
+Tulis untuk orang yang tidak pernah ikut kelasnya. Patokannya: **siapa pun, apa pun latar belakang, skill, atau pengalamannya, harus bisa mendapat nilai A** di mata kuliah aslinya hanya dari portal ini. Untuk materi kuliah universitas, ukurannya nilai A di mata kuliah setara di Fasilkom UI. Rinciannya di `standar-a.md`.
+
+Bahasa sederhana dan materi yang dalam berjalan bersama. Kalimat dibuat mudah, isinya tidak dikurangi.
 
 Kenapa: portal belajar sering dibuka orang di luar kelas aslinya, misalnya peserta matrikulasi, adik kelas, atau orang yang belajar mandiri. Kalimat yang mengandaikan pembaca hadir di kelas langsung membuat mereka merasa tertinggal.
 
 Akibatnya:
 
 - **Jangan merujuk ke perkuliahan.** Tidak ada "seperti dibahas di kelas", "contoh dari dosen", "slide pertemuan 3", atau "penekanan dosen".
-- **Jangan mengandaikan pengetahuan awal.** Setiap istilah teknis didefinisikan saat pertama muncul, di modul tempat ia muncul.
+- **Jangan mengandaikan pengetahuan awal.** Setiap istilah teknis didefinisikan saat pertama muncul, di modul tempat ia muncul. Prasyarat di atas SMA diberi unit Kilas prasyarat.
+- **Rumus memakai notasi yang benar**, sama dengan yang akan ditemui pembaca di soal ujian. Lihat `notasi-matematika.md`.
 - **Contoh dari dunia sehari-hari.** Belanja online, antre tiket, toko roti, ojek online. Hindari contoh yang hanya dikenal orang kantoran atau orang industri tertentu.
 
 ## Pilihan kata: yang diucapkan saat ngobrol

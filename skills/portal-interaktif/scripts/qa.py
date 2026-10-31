@@ -9,6 +9,7 @@ Butuh Playwright untuk Python dan Chromium headless:
   pip install playwright && playwright install chromium-headless-shell
 
 Yang diperiksa, dan kenapa:
+- Notasi matematika: rumus KaTeX yang error atau $...$ yang tidak dirender.
   1. Error JavaScript di setiap rute. Satu error bisa membuat seluruh halaman kosong.
   2. Rasio gambar. Gambar yang tampil gepeng membuat diagram sulit dibaca.
   3. Scroll horizontal di lebar HP 390 px. Pembaca HP tidak boleh menggeser layar ke samping.
@@ -32,6 +33,13 @@ SIG_JS = """() => {
 RATIO_JS = """() => [...document.querySelectorAll('#main img')].filter(i => i.complete && i.naturalWidth && i.clientWidth && getComputedStyle(i).objectFit !== 'cover')
   .map(i => ({ src: i.getAttribute('src'), want: i.naturalWidth / i.naturalHeight, got: i.clientWidth / i.clientHeight }))
   .filter(r => Math.abs(r.want - r.got) / r.want > 0.02)"""
+# Notasi matematika: rumus KaTeX yang gagal, atau pasangan $...$ yang tidak dirender (KaTeX tidak termuat).
+MATH_JS = r"""() => { const w = document.createTreeWalker(document.querySelector('#main') || document.body, NodeFilter.SHOW_TEXT);
+  let raw = 0, sample = ''; for (let n; (n = w.nextNode());) { const p = n.parentElement;
+    if (!p || p.closest('textarea, script, style, code, pre, .katex')) continue;
+    if (/\$[^$\s][^$]*\$/.test(n.data)) { raw++; sample = sample || n.data.slice(0, 60); } }
+  return { errors: document.querySelectorAll('#main .katex-error').length, raw, sample }; }"""
+
 OVERLAP_JS = """() => { let n = 0; document.querySelectorAll('.mmx:not(.is-outline)').forEach(map => {
   const r = [...map.querySelectorAll('.mmx-node')].filter(e => e.offsetParent).map(e => e.getBoundingClientRect());
   for (let a = 0; a < r.length; a++) for (let b = a + 1; b < r.length; b++) {
@@ -85,6 +93,9 @@ def check(folder):
             if bad: fails.append(f'{r}: {len(bad)} gambar rasionya berubah, contoh {bad[0]["src"]}')
             ov = page.evaluate(OVERLAP_JS)
             if ov: fails.append(f'{r}: {ov} pasang node mindmap bertumpuk')
+            mx = page.evaluate(MATH_JS)
+            if mx['errors']: fails.append(f'{r}: {mx["errors"]} rumus KaTeX gagal dirender')
+            if mx['raw']: fails.append(f'{r}: {mx["raw"]} teks $...$ tidak dirender, contoh "{mx["sample"]}"')
         # 3. lebar HP
         page.set_viewport_size({'width': 390, 'height': 844})
         for r in routes(page):

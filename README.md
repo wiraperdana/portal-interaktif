@@ -29,4 +29,5 @@ Symlink folder skill ke `~/.claude/skills/` (Claude Code) atau `~/.agents/skills
 
 - Node.js untuk skrip, Python dengan Playwright untuk QA.
 - [mindmap-html](https://github.com/wiraperdana/mindmap-html), disalin di `boilerplate/lib/`.
+- [KaTeX](https://katex.org) 0.16.11 (MIT), dibundel di `boilerplate/lib/katex/` beserta lisensinya, supaya rumus tampil tanpa internet.
 - Phosphor Icons dan font Geist dari CDN.

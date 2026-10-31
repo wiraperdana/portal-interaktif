@@ -11,6 +11,7 @@ Titik awalnya `templates/content.template.js`. Field bertanda *opsional* boleh d
 | Markup | Hasil | Berlaku di |
 |---|---|---|
 | `**istilah**` | Teks tebal. Bila istilahnya ada di `glossary`, ia jadi tombol yang membuka kamus. | `concept`, `define`, dan teks lain yang dirender kaya |
+| `$...$`, `$$...$$` | Rumus LaTeX sebaris dan blok, dirender KaTeX. Garis miring terbalik digandakan. | Semua teks kecuali judul, brief, hook, goal, trap, istilah tebal, dan field `slide`. Lihat `notasi-matematika.md`. |
 | `Awalan: isi` | Awalan pendek (2 sampai 28 huruf) tampil tebal sebagai penanda waktu, misalnya "Sebelum:", "Hari 4:" | `steps` |
 
 Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `footNote`, dan `topic.titleHtml`.
@@ -26,7 +27,7 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 | `chapters` | larik | Kelompok modul, maksimal 4: `{ label, title, sub }`. `label` tampil di kicker modul, misalnya "Bab 9". |
 | `source` | HTML | Rujukan utama di kaki halaman |
 | `footNote` | HTML, opsional | Catatan kecil di kaki halaman |
-| `visual` | objek, opsional | Gaya slide: `{ accent, second, setting }`, dibaca `slide-briefs.cjs` |
+| `visual` | objek, opsional | Gaya slide: `{ accent, second, setting, style }`, dibaca `slide-briefs.cjs`. `style` menyebut gaya gambar hero, misalnya "Flat modern illustration with soft grain", supaya slide tidak bergeser gaya. |
 | `glossary` | objek | Kamus. Kunci huruf kecil, nilai definisi satu sampai dua kalimat. |
 | `diagrams` | larik | Diagram dari sumber, lihat di bawah |
 | `simulations` | objek | Teks per simulasi, diteruskan ke `sims.js` sebagai `kit.text` |

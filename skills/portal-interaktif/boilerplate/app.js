@@ -380,7 +380,7 @@ function unitBlock(u, k, i) {
     <p class="unit-q">${esc(u.question)}</p>
     <div class="unit-example">${label('lightbulb', 'Contoh')}<p>${rich(u.example)}</p>
       ${u.steps ? `<ol class="unit-steps">${u.steps.map(stepItem).join('')}</ol>` : ''}
-      ${u.note ? `<p class="unit-note"><i class="ph ph-info" aria-hidden="true"></i>${esc(u.note)}</p>` : ''}
+      ${u.note ? `<p class="unit-note"><i class="ph ph-info" aria-hidden="true"></i><span>${esc(u.note)}</span></p>` : ''}
     </div>
     <div class="unit-define">${label('book-open', 'Definisi')}<p>${richTerms(u.define)}</p></div>
     ${tiles}
@@ -709,6 +709,51 @@ function route() {
   else home();
   if (parts[0] !== 'modul') { bindPageActions(); window.scrollTo(0, 0); }
 }
+// Notasi matematika: $...$ (sebaris) dan $$...$$ (blok) di teks mana pun dirender KaTeX dari lib/katex.
+// Satu pengamat DOM menangani semua tempat, termasuk kuis, kamus, dialog, dan simulasi.
+// Tanpa KaTeX (berkas hilang), teks LaTeX tampil apa adanya dan portal tetap jalan.
+const MATH_OPTS = {
+  delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
+  ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option', 'input'],
+  throwOnError: false,
+};
+// Rumus sebaris yang lebih lebar dari kolomnya (misalnya matriks) tidak bisa dipatahkan dan akan melebarkan halaman.
+// Rumus seperti itu diberi kelas katex-wide: tampil sebagai blok yang bisa digulir sendiri.
+function fitWideMath(root) {
+  const all = [...root.querySelectorAll('.katex:not(.katex-display .katex)')];
+  all.forEach(k => k.classList.remove('katex-wide'));
+  // Dua putaran: rumus lebar di kolom yang sama saling melebarkan, jadi putaran kedua mengukur ulang.
+  for (let pass = 0; pass < 2; pass++) all.forEach(k => {
+    if (k.classList.contains('katex-wide') || !k.getClientRects().length) return; // belum tampil, diukur saat dibuka
+    const host = k.parentElement.closest('p, li, td, div');
+    // Lebar kolom diukur tanpa rumus itu, karena rumus yang terlalu lebar ikut melebarkan kolomnya.
+    const w = k.scrollWidth; k.style.display = 'none';
+    const room = Math.min(host ? host.clientWidth : innerWidth, innerWidth - 32);
+    k.style.display = '';
+    if (w > room) k.classList.add('katex-wide');
+  });
+}
+function renderMath(root) {
+  if (!window.renderMathInElement || !root || root.nodeType !== 1) return;
+  window.renderMathInElement(root, MATH_OPTS);
+}
+let fitQueued = false;
+const refitSoon = () => { if (fitQueued) return; fitQueued = true; requestAnimationFrame(() => { fitQueued = false; fitWideMath(document.body); }); };
+addEventListener('resize', refitSoon);
+document.addEventListener('toggle', refitSoon, true); // <details> dan dialog yang baru dibuka
+let mathBusy = false;
+new MutationObserver(muts => {
+  if (mathBusy || !window.renderMathInElement) return;
+  mathBusy = true;
+  for (const m of muts) for (const n of m.addedNodes) {
+    if (n.nodeType === 1 && !n.closest('.katex')) renderMath(n);
+    else if (n.nodeType === 3 && n.parentElement && !n.parentElement.closest('.katex') && n.data.includes('$')) renderMath(n.parentElement);
+  }
+  mathBusy = false;
+  refitSoon();
+}).observe(document.body, { childList: true, subtree: true });
+renderMath(document.body);
+
 window.addEventListener('hashchange', route);
 route();
 })();

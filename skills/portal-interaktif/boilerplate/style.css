@@ -319,7 +319,7 @@ details.reveal ul { margin: 0; padding-left: 20px; }
 .art figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
 
 /* ---------- unit pola mikro ---------- */
-.unit { padding-top: 44px; max-width: 72ch; display: grid; gap: 14px; }
+.unit { padding-top: 44px; max-width: 72ch; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
 .unit + .unit { border-top: 1px solid var(--line); margin-top: 28px; }
 .unit h3 { font-size: 22px; }
 .unit-q { font-size: 18px; line-height: 1.5; color: var(--ink); font-weight: 500; }
@@ -742,3 +742,9 @@ a.topic-row:hover { border-color: var(--line-strong); }
 .practice-mod.done { border-color: color-mix(in srgb, var(--good) 40%, var(--line)); }
 /* cerita tanpa ilustrasi memakai lebar penuh */
 .story:not(:has(img)) { grid-template-columns: minmax(0, 1fr); }
+
+/* Notasi matematika (KaTeX, lib/katex). Ukuran mengikuti teks sekitar, rumus blok boleh digulir di layar sempit. */
+.katex { font-size: 1.06em; }
+.katex-display { margin: 12px 0; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+.katex-wide { display: block; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: 4px 0; margin: 4px 0; }
+.katex-display > .katex { white-space: nowrap; }

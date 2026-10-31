@@ -9,6 +9,10 @@ Skill ini membuat portal belajar dari bahan mentah. Kodenya sudah jadi di `boile
 
 Analogi sederhananya begini. `boilerplate/` adalah gedung sekolah yang sudah lengkap: ruang kelas, papan tulis, perpustakaan, dan ruang ujian. Agent tidak membangun gedung. Agent menyusun kurikulum, menulis bahan ajar, dan menyiapkan soal ujiannya. Karena gedungnya sama, setiap portal baru otomatis mewarisi semua perbaikan tata letak yang pernah dibuat.
 
+## Patokan mutu: Standar A
+
+Siapa pun yang mengikuti portal sampai selesai harus bisa **mendapat nilai A di mata kuliah aslinya, apa pun latar belakang, skill, atau pengalamannya**. Untuk materi kuliah universitas, patokannya nilai A di mata kuliah setara di Fasilkom UI. Artinya dua hal sekaligus: prasyarat yang bolong ditambal, dan materi tidak diencerkan. Daftar periksanya di `references/standar-a.md`, dan ia mengikat di langkah 2, 4, dan 7.
+
 ## Kapan dipakai
 
 - Pengguna menyerahkan bahan belajar dan ingin halaman belajar mandiri yang interaktif.
@@ -48,7 +52,8 @@ Baca `references/intake.md`. Ringkasnya:
 1. Susun daftar istilah kanonik dari sumber. Satu konsep, satu nama. Bila sumber memakai dua nama untuk konsep yang sama, berhenti dan tanya.
 2. Kelompokkan jadi paling banyak empat bab (`chapters`), lalu modul. Sepuluh modul per topik sudah terbukti nyaman.
 3. Tiap modul berisi tiga sampai delapan unit Pendalaman. Satu unit membawa satu gagasan.
-4. Tunjukkan peta itu ke pengguna sebagai tabel: bab, modul, judul unit, dan istilah kunci. Tunggu persetujuan.
+4. Terapkan `references/standar-a.md` bagian 1 dan 2: petakan setiap butir sumber ke unit, lalu tambahkan unit **Kilas prasyarat** untuk pengetahuan awal yang melampaui SMA.
+5. Tunjukkan peta itu ke pengguna sebagai tabel: bab, modul, judul unit, dan istilah kunci. Tunggu persetujuan.
 
 ### 3. Pasang boilerplate
 
@@ -65,7 +70,9 @@ Ikuti `references/content-schema.md` untuk bentuk datanya. Ikuti `references/pol
 - **Satu cerita per modul.** Bagian Inti memakai satu situasi sehari-hari. Unit Pendalaman boleh punya contoh sendiri, tetapi tetap di dunia yang sama.
 - **Pembaca universal.** Lulusan SMA harus bisa paham tanpa pernah ikut kelasnya. Jangan merujuk ke kuliah, dosen, atau pertemuan.
 - **Bahasa sehari-hari.** Pakai kata yang diucapkan orang saat ngobrol: online, HP, ngobrol. Istilah teknis tetap Inggris bila itu bentuk yang umum, dan wajib didefinisikan saat pertama muncul.
-- **Kuis lima soal, lima opsi** per modul. Soal berupa kasus singkat, bukan hafalan definisi.
+- **Kuis lima soal, lima opsi** per modul. Soal berupa kasus singkat, bukan hafalan definisi. Untuk topik kuantitatif, minimal dua soal hitungan.
+- **Notasi matematika** ditulis LaTeX di antara `$...$` atau `$$...$$`, dirender KaTeX yang sudah dibundel. Judul, brief, dan slide tetap Unicode. Aturannya di `references/notasi-matematika.md`.
+- **Setiap rumus diturunkan langkah demi langkah dan punya contoh angka**, yang hasilnya dicek ulang dengan skrip, bukan dihitung di kepala.
 - Untuk topik besar, tulis isinya lewat skrip generator per bab (Python atau Node) yang mengeluarkan potongan `content.js`. Cara ini memudahkan revisi massal.
 
 ### 5. Siapkan gambar **[tanya bila belum diizinkan]**
@@ -92,7 +99,7 @@ Bila sebuah konsep paling mudah dipahami dengan dicoba, tulis simulasinya di `si
 python3 scripts/qa.py <portal>
 ```
 
-Skrip memeriksa error JavaScript, rasio gambar, scroll horizontal di lebar HP, node mindmap yang bertumpuk, alur selesai modul, dan kelengkapan isi. Setelah lolos, lanjutkan pemeriksaan manual di `references/qa.md`: tangkapan layar desktop dan HP, baca ulang satu modul utuh, dan cek ejaan di slide.
+Skrip memeriksa error JavaScript, rumus yang gagal dirender, rasio gambar, scroll horizontal di lebar HP, node mindmap yang bertumpuk, alur selesai modul, dan kelengkapan isi. Setelah lolos, lanjutkan pemeriksaan manual di `references/qa.md` dan daftar periksa `references/standar-a.md`: tangkapan layar desktop dan HP, baca ulang satu modul utuh, dan cek ejaan di slide.
 
 ### 8. Laporkan
 
@@ -106,13 +113,14 @@ Laporkan ke pengguna: jumlah modul, unit, soal, gambar, hasil QA, dan apa yang b
 - **Syarat selesai modul**: kelima soal dijawab dengan minimal empat benar, dan penjelasan dengan bahasamu minimal 40 karakter.
 - **Sitasi dan angka** di isi portal mengikuti aturan sitasi pengguna. Angka pasar dari ucapan lisan tidak dipakai sebelum diverifikasi ke sumber resmi.
 - **Kuota imagegen milik pengguna.** Brief dan gambar rujukan terkirim ke OpenAI. Jangan generate tanpa izin, dan sebut jumlah gambarnya sebelum mulai.
+- **Standar A tidak boleh ditawar.** Bagian sumber yang sulit diberi unit sendiri, bukan diringkas jadi satu kalimat.
 - Jangan pernah memakai em dash di isi portal.
 
 ## Berkas skill
 
 | Berkas | Isi |
 |---|---|
-| `boilerplate/` | Kode portal yang tidak memuat isi topik apa pun |
+| `boilerplate/` | Kode portal yang tidak memuat isi topik apa pun, termasuk KaTeX di `lib/katex/` |
 | `templates/content.template.js` | Titik awal `content.js` dengan komentar per field |
 | `scripts/new-portal.sh` | Salin boilerplate ke folder baru |
 | `scripts/image-sizes.cjs` | Tulis `images.js` dari isi `assets/` |
@@ -125,4 +133,6 @@ Laporkan ke pengguna: jumlah modul, unit, soal, gambar, hasil QA, dan apa yang b
 | `references/bahasa.md` | Pembaca sasaran, pilihan kata, dan label |
 | `references/visual.md` | Diagram, ilustrasi, slide, dan pemeriksaan visual |
 | `references/simulasi.md` | Kontrak `sims.js` |
+| `references/standar-a.md` | Patokan mutu: cakupan penuh, Kilas prasyarat, kedalaman ujian, latihan setara ujian |
+| `references/notasi-matematika.md` | Menulis rumus dengan LaTeX dan KaTeX, konvensi notasi, angka |
 | `references/qa.md` | Daftar periksa manual sebelum diserahkan |
