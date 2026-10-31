@@ -63,8 +63,9 @@ Label ini sudah disetujui dan dipakai di semua portal. Ia ditulis di `app.js`, j
 
 Bila `voices` diisi, pembaca bisa memilih gaya. Tombolnya berlabel **Dosen** (formal, bawaan, mengikuti semua aturan di atas) dan **Asdos** (santai). Nilai internalnya tetap `formal` dan `santai`. Gaya Asdos meniru asisten dosen yang menjelaskan ke adik tingkat: "Bayangin gini", "Nah, ini persis...", "Gampang kan?".
 
-- Gaya santai hanya menimpa field naratif: `hook`, `inti.beats`, `question` per unit, dan `prep.intro`.
-- Definisi, rumus, kuis, dan kunci jawaban **tetap sama** di kedua gaya. Kenapa: yang diuji adalah konsepnya, dan dua versi definisi berisiko berbeda makna.
+- Gaya Asdos menimpa **semua teks penjelas**: modul (`hook`, `inti.beats`, `trap`), unit (`brief`, `question`, kalimat pembuka `example`, `note`, `lecturer`, `contrast`, `mistakes`), dan Persiapan (`intro`, `usage`, `oneLine`, `mini`, `kitIntro`). Keputusan pengguna 31 Oktober 2026 (K-261031-07).
+- Yang **tetap gaya Dosen** di kedua mode: definisi (`define`, `inti.concept`, kamus), kuis dan Mode Ujian, Cek cepat (`check`), langkah hitungan (`steps`), kartu dan cek bekal, serta teks di infografis dan slide. Kenapa: yang diuji adalah konsepnya, dua versi definisi atau kunci jawaban berisiko berbeda makna, dan gambar hanya dibuat satu kali.
+- Rumus LaTeX di versi Asdos disalin persis dari versi Dosen. Yang berubah hanya cara bertutur. `mistakes` versi Asdos wajib sama jumlah butirnya.
 - Gaya Asdos tetap sopan dan tetap benar. Tidak ada singkatan chat (yg, gmn) dan tidak ada candaan yang mengaburkan konsep.
 
 Label baru yang baku: Persiapan, Mode Ujian, Simbol dan cara bacanya, Turunkan sendiri, Sering salah, Yang harus kamu kuasai, Data mini, Lencana.

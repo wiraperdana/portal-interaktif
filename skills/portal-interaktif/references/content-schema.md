@@ -76,7 +76,7 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 | `title` | Istilah kunci modul. Boleh Inggris bila itu bentuk yang umum. |
 | `short` | Judul pendek untuk menu dan peta pokok bahasan, 1 sampai 3 kata, misalnya "Residual & Loss". Pembaca memindai daftar ini untuk tahu apa yang harus dikuasai. |
 | `poster` | Disarankan. Infografis modul lengkap `{ heading?, blocks: [[label, penjelasan, adegan], ...], formula?, takeaway }`, 4 sampai 8 blok. Penjelasan 12 sampai 25 kata per blok dan merangkum isi unit, bukan judulnya saja. Teks Unicode, tanpa LaTeX. Gambarnya `assets/poster-mNN.webp`, tampil di bawah tujuan modul sebelum Inti. |
-| `informal` | Opsional. Versi gaya santai: `{ hook, inti: { beats } }`. Hanya field naratif, definisi tetap formal. |
+| `informal` | Opsional. Versi gaya Asdos: `{ hook, trap, inti: { beats } }`. Definisi tetap gaya Dosen. Lihat `bahasa.md`. |
 | `hook` | Satu kalimat cerita yang memancing rasa ingin tahu |
 | `goal` | Satu tujuan belajar yang bisa diuji |
 | `trap` | Batas atau salah kaprah, tampil sebagai "Batas yang perlu diingat" |
@@ -117,7 +117,7 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 | `symbols` | tidak | "Simbol dan cara bacanya": `[[simbol, arti], ...]` |
 | `derive` | tidak | "Turunkan sendiri": `{ intro, steps: [{ prompt, options, key, show, why, hint }] }`. Langkah berikutnya terbuka setelah pilihan benar. |
 | `mistakes` | tidak | "Sering salah": daftar kesalahan nyata di ujian |
-| `informal` | tidak | Versi gaya santai, biasanya `{ question }` |
+| `informal` | tidak | Versi gaya Asdos: `{ brief, question, example, note, lecturer, contrast, mistakes }`. Tanpa `define`, `check`, `steps` |
 
 **Daun mindmap** diambil otomatis: dari `slide.grid` atau `tiles` bila ada, kalau tidak dari istilah tebal di `define`. Unit berisi daftar delapan ciri akan menampilkan delapan daun.
 
