@@ -748,3 +748,126 @@ a.topic-row:hover { border-color: var(--line-strong); }
 .katex-display { margin: 12px 0; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
 .katex-wide { display: block; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: 4px 0; margin: 4px 0; }
 .katex-display > .katex { white-space: nowrap; }
+
+/* ---------- gamifikasi ---------- */
+.xp { display: grid; gap: 6px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
+.xp-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+.xp-head strong { display: inline-flex; gap: 6px; align-items: center; color: var(--ink); }
+.xp-head strong i { color: var(--accent); }
+.xp-head span { font: 600 12px var(--mono); color: var(--muted); }
+.xp-bar { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.xp-bar span { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .4s; }
+.xp small { font-size: 11.5px; color: var(--muted); }
+.toast { position: fixed; z-index: 90; left: 50%; bottom: 84px; transform: translateX(-50%); background: var(--ink); color: var(--ink-inverse, #fff); padding: 10px 16px; border-radius: 99px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.18); display: flex; gap: 8px; align-items: center; max-width: calc(100vw - 32px); }
+.toast b { font-weight: 650; }
+.badges { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
+.badges li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px dashed var(--line-strong); border-radius: var(--r-block); color: var(--muted); }
+.badges li i { font-size: 26px; opacity: .45; }
+.badges li strong { display: block; font-size: 14px; }
+.badges li small { font-size: 12.5px; }
+.badges li.got { border-style: solid; border-color: var(--accent); background: var(--accent-soft); color: var(--ink-2); }
+.badges li.got i { color: var(--accent); opacity: 1; }
+
+/* ---------- gaya bahasa ---------- */
+.voice-btn { width: auto; padding: 0 12px; gap: 6px; display: inline-flex; align-items: center; font-size: 13px; font-weight: 600; }
+
+/* ---------- peta pokok bahasan ---------- */
+.skim { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.skim > li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 14px 16px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--r-block); background: var(--surface); }
+.skim-n { font: 600 15px var(--mono); color: var(--accent); text-decoration: none; padding-top: 2px; }
+.skim-t { display: inline-flex; gap: 8px; align-items: center; color: var(--ink); text-decoration: none; font-size: 16.5px; }
+.skim-t:hover strong { text-decoration: underline; }
+.skim-t .done { color: var(--good); }
+.skim p { margin: 4px 0 8px; color: var(--ink-2); font-size: 14.5px; }
+.skim .chips { margin: 0; }
+
+/* ---------- Persiapan ---------- */
+.story-map { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+.story-map li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.story-map .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font: 600 14px var(--mono); }
+.story-map strong { font-size: 16px; }
+.story-map p { margin: 4px 0; color: var(--ink-2); }
+.story-map a { font-size: 13px; }
+.one-line { margin: 28px 0 8px; padding: 18px 20px; border-radius: var(--r-block); background: var(--accent-soft); border: 1px solid var(--accent); }
+.one-line small { font-weight: 600; color: var(--accent); }
+.one-line p { margin: 6px 0 0; font-size: 17px; line-height: 1.55; }
+.table-wrap { overflow-x: auto; margin: 12px 0; }
+.mini-table, .trap-table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+.mini-table th, .mini-table td, .trap-table th, .trap-table td { border-bottom: 1px solid var(--line); padding: 9px 12px; text-align: left; vertical-align: top; }
+.mini-table th, .trap-table th { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.mini-table td { font-family: var(--mono); }
+.conf { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); white-space: nowrap; }
+.conf.hi { background: var(--accent-soft); color: var(--accent); }
+.kit { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; }
+.kit-card { padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-block); background: var(--surface); }
+.kit-card strong { display: block; margin-bottom: 6px; }
+.kit-card p { margin: 0; color: var(--ink-2); font-size: 14.5px; line-height: 1.6; }
+.prep-q { margin-bottom: 12px; }
+.prep-go { margin-top: 32px; }
+
+/* ---------- unit: simbol, sering salah, penurunan ---------- */
+.unit-symbols, .unit-mistakes, .unit-derive { border: 1px solid var(--line); border-radius: var(--r-block); padding: 16px 18px; background: var(--surface); }
+.unit-symbols dl { margin: 10px 0 0; display: grid; gap: 8px; }
+.unit-symbols dl > div { display: grid; grid-template-columns: minmax(80px, max-content) minmax(0, 1fr); gap: 14px; align-items: baseline; }
+.unit-symbols dt { font-weight: 600; }
+.unit-symbols dd { margin: 0; color: var(--ink-2); }
+.unit-mistakes { border-color: color-mix(in srgb, var(--bad) 35%, var(--line)); }
+.unit-mistakes .unit-label { color: var(--bad); }
+.unit-mistakes ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; color: var(--ink-2); }
+.unit-derive { border-color: var(--accent); }
+.derive-done { margin: 12px 0; padding-left: 22px; display: grid; gap: 10px; }
+.derive-done small { display: block; color: var(--muted); font-size: 13px; }
+.derive-ask .options { margin: 10px 0; }
+.derive-fb { color: var(--bad); font-size: 14px; min-height: 1em; }
+.derive-end { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; color: var(--good); font-weight: 600; }
+.skip-link { margin: 0 0 8px; font-size: 14px; }
+.skip-link a { display: inline-flex; gap: 6px; align-items: center; }
+
+/* ---------- Mode Ujian ---------- */
+.exam-setup fieldset { border: 0; padding: 0; margin: 0 0 20px; }
+.exam-setup legend { font-weight: 650; margin-bottom: 10px; }
+.pack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 10px; }
+.pack { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-block); cursor: pointer; }
+.pack:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.pack span { display: grid; gap: 2px; }
+.pack small { font-size: 12.5px; color: var(--ink-2); }
+.time-grid, .calc-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { display: inline-flex; gap: 6px; align-items: center; padding: 7px 12px; border: 1px solid var(--line); border-radius: 99px; font-size: 14px; cursor: pointer; }
+.pill:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.pill-btn { padding: 7px 12px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+.pill-btn.on { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.exam-bar { position: sticky; top: 64px; z-index: 5; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 16px; margin: 0 0 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-block); box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+.exam-bar .clock { font: 600 16px var(--mono); }
+.exam-bar .clock.low { color: var(--bad); }
+.exam-bar .btn { margin-left: auto; }
+.exam-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.exam-item { padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-block); background: var(--surface); }
+.exam-item.is-right { border-left: 4px solid var(--good); }
+.exam-item.is-wrong { border-left: 4px solid var(--bad); }
+.ex-meta { font-size: 12.5px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+.exam-item textarea { width: 100%; min-height: 140px; }
+.option.picked { border-color: var(--accent); background: var(--accent-soft); }
+.exam-foot { margin: 20px 0; }
+.exam-score { margin-bottom: 20px; }
+.essay-mine { white-space: pre-wrap; padding: 10px 12px; background: var(--surface-2); border-radius: 8px; }
+.rubric ul { list-style: none; padding: 0; margin: 6px 0; display: grid; gap: 4px; }
+.calc-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 12px; margin: 12px 0; }
+.calc-fields input.right { border-color: var(--good); }
+.calc-fields input.wrong { border-color: var(--bad); }
+.calc-review { padding-left: 20px; }
+.calc-review .ok { color: var(--good); }
+.calc-review .no { color: var(--bad); }
+.calc-card { margin-top: 12px; }
+@media (max-width: 720px) {
+  .skim > li { grid-template-columns: 32px minmax(0, 1fr); padding: 12px; }
+  .exam-bar { top: 56px; }
+  .toast { bottom: 76px; }
+}
+
+/* Tata letak bantu untuk simulasi di sims.js: dua kolom yang turun jadi satu di HP, tabel angka, dan input di dalam tabel. */
+.sim-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; align-items: start; }
+.sim-out > *, .sim-two > * { min-width: 0; }
+.sim table input { width: 100%; max-width: 110px; min-width: 0; }
+.sim-metrics { overflow-x: auto; }
+.sim .btn.on { border-color: var(--accent); background: var(--accent-soft); }
+.kc-steps { padding-left: 20px; display: grid; gap: 8px; }

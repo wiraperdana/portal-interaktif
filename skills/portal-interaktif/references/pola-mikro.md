@@ -17,11 +17,14 @@ Pola mikro adalah urutan tetap di dalam satu unit Pendalaman. Bayangkan resep ma
 3. **Pertanyaan pemantik**, situasi sehari-hari yang membuat konsepnya terasa perlu.
 4. **Contoh**: satu kalimat pembuka, lalu langkah berurutan (`steps`) dengan penanda waktu, lalu catatan kecil bila perlu.
 5. **Definisi**, dengan istilah tebal yang bisa diklik ke kamus.
-6. **Kartu ciri** (bila konsepnya berupa daftar).
-7. **Yang sering tertukar** (bila ada pasangan konsep yang mirip).
-8. **Poin penting** (penekanan dari sumber, tanpa menyebut siapa yang menekankan).
-9. **Cek cepat**, satu pertanyaan dengan jawaban yang bisa dibuka.
-10. Diagram, ilustrasi, atau simulasi yang ditempatkan setelah unit ini.
+6. **Simbol dan cara bacanya** (bila unit memperkenalkan notasi).
+7. **Kartu ciri** (bila konsepnya berupa daftar).
+8. **Turunkan sendiri** (bila unit berisi penurunan rumus). Pembaca memilih langkah berikutnya, dan langkah baru terbuka setelah pilihannya benar.
+9. **Yang sering tertukar** (bila ada pasangan konsep yang mirip).
+10. **Sering salah** (kesalahan nyata saat mengerjakan soal).
+11. **Poin penting** (penekanan dari sumber, tanpa menyebut siapa yang menekankan).
+12. **Cek cepat**, satu pertanyaan dengan jawaban yang bisa dibuka.
+13. Diagram, ilustrasi, atau simulasi yang ditempatkan setelah unit ini.
 
 Urutan contoh sebelum definisi itu disengaja. Pembaca yang sudah melihat kejadiannya akan membaca definisi sebagai penjelasan, bukan sebagai hafalan.
 
@@ -66,3 +69,23 @@ Bagian Inti memakai satu tokoh dan satu situasi. Unit Pendalaman boleh memakai c
 - Tidak ada tombol "Tanya AI tentang modul ini" di halaman modul. Tanya AI tersedia lewat tombol melayang dan halaman penuh.
 - Label tidak memakai kalimat perintah. "Dari cerita ke istilah", bukan "Hubungkan dengan cerita".
 - Slide infografis berupa gambar dari imagegen, bukan slide HTML.
+
+## Persiapan, sebelum Modul 1
+
+Halaman Persiapan memberi bekal sebelum belajar: cara memakai portal, peta pokok bahasan (judul pendek, tujuan, istilah tiap modul), alur cerita yang menyambungkan semua modul, satu kalimat inti, data mini, bekal pengetahuan dengan cek, dan jebakan di bahan sumber. Kenapa: pembaca yang tahu peta dan bekalnya tidak tersesat di tengah modul.
+
+## Data mini lintas modul
+
+Topik kuantitatif memakai satu data mini kecil yang bisa dihitung tangan, dipakai di setiap modul sebagai unit "Data mini: ...". Di atas data mini, tiap modul menambah contoh yang lebih kompleks sebanyak yang perlu, misalnya data asli dari sumber. Hitung hasil yang sama dengan semua metode yang dibahas, supaya pembaca melihat metode berbeda bertemu di jawaban yang sama.
+
+## Simulasi per modul
+
+Setiap modul yang punya konsep dengan variabel yang bisa diubah wajib punya simulasi. Lihat `simulasi.md`. Simulasi bukan hiasan: ia tempat pembaca membuktikan sendiri ide utama modul.
+
+## Mode Ujian
+
+Kuis per modul melatih pemahaman. Mode Ujian melatih kondisi ujian: paket acak dengan timer, soal isian berlapis dari generator, esai dengan rubrik, dan Simulasi ujian penuh yang meniru format ujian asli. Hasilnya menandai modul yang perlu diulang.
+
+## Gamifikasi
+
+XP, level, dan lencana diberikan hanya untuk tanda paham: jawaban kuis benar, langkah penurunan tanpa bantuan, modul selesai, set hitungan benar, lulus paket ujian, dan tantangan simulasi. Membuka halaman tidak memberi XP. Setiap hadiah punya id, jadi mengulang tidak memberi XP dua kali.

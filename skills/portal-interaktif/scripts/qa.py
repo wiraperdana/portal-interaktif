@@ -10,6 +10,7 @@ Butuh Playwright untuk Python dan Chromium headless:
 
 Yang diperiksa, dan kenapa:
 - Notasi matematika: rumus KaTeX yang error atau $...$ yang tidak dirender.
+- Simulasi yang gagal terpasang, kunci penurunan interaktif, dan generator soal ujian.
   1. Error JavaScript di setiap rute. Satu error bisa membuat seluruh halaman kosong.
   2. Rasio gambar. Gambar yang tampil gepeng membuat diagram sulit dibaca.
   3. Scroll horizontal di lebar HP 390 px. Pembaca HP tidak boleh menggeser layar ke samping.
@@ -49,7 +50,8 @@ OVERLAP_JS = """() => { let n = 0; document.querySelectorAll('.mmx:not(.is-outli
 
 def routes(page):
     n = page.evaluate("(window.CONTENT || window.PORTAL).modules.length")
-    return ['#/', '#/kursus', '#/latihan', '#/tanya'] + [f'#/modul/{i}' for i in range(1, n + 1)]
+    extra = ['#/persiapan'] if page.evaluate("!!(window.CONTENT && window.CONTENT.prep)") else []
+    return ['#/', '#/kursus', '#/latihan', '#/ujian', '#/tanya'] + extra + [f'#/modul/{i}' for i in range(1, n + 1)]
 
 
 def visit(page, url, route):
@@ -85,6 +87,16 @@ def check(folder):
             for k, u in enumerate(m['sections']):
                 for key in ('title', 'brief', 'question', 'example', 'define', 'check'):
                     if not u.get(key): fails.append(f'{tag} unit {k + 1}: {key} kosong')
+        # Isi tambahan: penurunan interaktif dan generator soal ujian.
+        for i, m in enumerate(C['modules'] if C else []):
+            for k, u in enumerate(m['sections']):
+                for j, st in enumerate((u.get('derive') or {}).get('steps', [])):
+                    if not (0 <= st.get('key', -1) < len(st.get('options', []))): fails.append(f'Modul {i + 1:02d} unit {k + 1}: derive langkah {j + 1} kunci di luar opsi')
+        gens = page.evaluate("""() => (window.PORTAL_EXAM && window.PORTAL_EXAM.generators || []).map(g => {
+          let bad = 0; for (let t = 0; t < 30; t++) { const s = g.make(Math.random); if (!s.text || !s.fields.length || s.fields.some(f => !Number.isFinite(f.answer))) bad++; }
+          return [g.title, bad]; })""")
+        for title, bad in gens:
+            if bad: fails.append(f'Generator ujian "{title}": {bad} dari 30 soal punya jawaban bukan angka')
         for r in routes(page):
             errs.clear(); visit(page, url, r)
             sigs[r] = page.evaluate(SIG_JS)
@@ -93,6 +105,9 @@ def check(folder):
             if bad: fails.append(f'{r}: {len(bad)} gambar rasionya berubah, contoh {bad[0]["src"]}')
             ov = page.evaluate(OVERLAP_JS)
             if ov: fails.append(f'{r}: {ov} pasang node mindmap bertumpuk')
+            # Simulasi yang namanya tidak terdaftar di sims.js meninggalkan wadah kosong.
+            left = page.evaluate("document.querySelectorAll('.sim-mount').length")
+            if left: fails.append(f'{r}: {left} simulasi tidak terpasang (nama tidak ada di PORTAL_SIMS atau sims.js error)')
             mx = page.evaluate(MATH_JS)
             if mx['errors']: fails.append(f'{r}: {mx["errors"]} rumus KaTeX gagal dirender')
             if mx['raw']: fails.append(f'{r}: {mx["raw"]} teks $...$ tidak dirender, contoh "{mx["sample"]}"')

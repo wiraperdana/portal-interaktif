@@ -56,9 +56,13 @@ window.CONTENT = {
   // Teks untuk simulasi di sims.js, dikirim ke mount() sebagai kit.text.
   simulations: {},
 
+  // Opsional, lihat references/content-schema.md: prep (halaman Persiapan), traps, essays, examFormat,
+  // voices (gaya Formal dan Santai), game.badges (lencana khusus topik).
+
   modules: [
     {
       title: 'Judul modul',               // istilah kunci, boleh Inggris bila itu bentuk yang umum
+      short: 'Pokok bahasan',              // judul pendek untuk menu dan peta pokok bahasan
       hook: 'Satu kalimat cerita yang membuat orang penasaran.',
       goal: 'Menjelaskan ... (satu tujuan belajar yang bisa diuji).',
       trap: 'Batas atau salah kaprah yang perlu diingat.',
@@ -93,6 +97,8 @@ window.CONTENT = {
           contrast: '',                    // opsional, tampil sebagai "Yang sering tertukar"
           lecturer: '',                    // opsional, tampil sebagai "Poin penting"
           check: { q: 'Pertanyaan cek cepat?', a: 'Jawaban singkat beserta alasannya.' },
+          // opsional: symbols: [['$h$', 'hipotesis']], mistakes: ['Kesalahan yang sering terjadi.'],
+          // derive: { intro, steps: [{ prompt, options: [...], key, show, why, hint }] }, informal: { question }
           // opsional: diagrams: [0], art: { name, alt, caption }, sim: 'nama', tiles: [['Nama', 'Keterangan']]
         },
       ],

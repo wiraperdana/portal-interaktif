@@ -31,6 +31,12 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 | `glossary` | objek | Kamus. Kunci huruf kecil, nilai definisi satu sampai dua kalimat. |
 | `diagrams` | larik | Diagram dari sumber, lihat di bawah |
 | `simulations` | objek | Teks per simulasi, diteruskan ke `sims.js` sebagai `kit.text` |
+| `prep` | objek, opsional | Halaman Persiapan, lihat di bawah. Bila ada, menu Persiapan muncul. |
+| `traps`, `trapsIntro` | larik, opsional | Jebakan di bahan sumber: `[{ where, written, correct, confidence: 'Tinggi' \| 'Sedang' }]`, tampil di Persiapan |
+| `essays` | larik, opsional | Soal esai Mode Ujian: `[{ module, prompt, rubric: [..], answer }]` |
+| `examFormat` | objek, opsional | Format Simulasi ujian penuh: `{ pg, isian, essay, minutes }`, default 15, 10, 5, 150 |
+| `voices` | objek, opsional | Mengaktifkan tombol gaya bahasa Formal dan Santai: `{ formal, santai }` berisi teks tooltip |
+| `game` | objek, opsional | `{ levels, badges }`. `badges` menambah lencana khusus topik yang diberikan simulasi lewat `kit.badge(id)` |
 | `gradeRubric` | larik, opsional | Rubrik penilaian AI untuk penjelasan pembaca: `[[kriteria, keterangan], ...]` |
 | `modules` | larik | Isi utama, lihat di bawah |
 
@@ -68,6 +74,8 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 | Field | Isi |
 |---|---|
 | `title` | Istilah kunci modul. Boleh Inggris bila itu bentuk yang umum. |
+| `short` | Judul pendek untuk menu dan peta pokok bahasan, 1 sampai 3 kata, misalnya "Residual & Loss". Pembaca memindai daftar ini untuk tahu apa yang harus dikuasai. |
+| `informal` | Opsional. Versi gaya santai: `{ hook, inti: { beats } }`. Hanya field naratif, definisi tetap formal. |
 | `hook` | Satu kalimat cerita yang memancing rasa ingin tahu |
 | `goal` | Satu tujuan belajar yang bisa diuji |
 | `trap` | Batas atau salah kaprah, tampil sebagai "Batas yang perlu diingat" |
@@ -105,6 +113,10 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 | `diagrams` | tidak | Indeks diagram yang tampil setelah unit ini |
 | `art` | tidak | Ilustrasi `{ name, alt, caption }` setelah unit ini |
 | `sim` | tidak | Nama simulasi di `sims.js` yang tampil setelah unit ini |
+| `symbols` | tidak | "Simbol dan cara bacanya": `[[simbol, arti], ...]` |
+| `derive` | tidak | "Turunkan sendiri": `{ intro, steps: [{ prompt, options, key, show, why, hint }] }`. Langkah berikutnya terbuka setelah pilihan benar. |
+| `mistakes` | tidak | "Sering salah": daftar kesalahan nyata di ujian |
+| `informal` | tidak | Versi gaya santai, biasanya `{ question }` |
 
 **Daun mindmap** diambil otomatis: dari `slide.grid` atau `tiles` bila ada, kalau tidak dari istilah tebal di `define`. Unit berisi daftar delapan ciri akan menampilkan delapan daun.
 
@@ -115,3 +127,24 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 ```
 
 Opsi diacak tetap per soal saat tampil, jadi tulis jawaban benar di posisi mana saja. Setelah ditulis, periksa sebaran kunci dengan QA. Bila menumpuk, ubah `quizSeed`.
+
+### prep, halaman Persiapan
+
+```js
+{ title, intro, informal: { intro },
+  usage: [{ icon, title, text }],          // cara memakai portal
+  story: [{ q, a, module }],                // peta cerita: satu pertanyaan per modul, saling menyambung
+  oneLine,                                  // seluruh materi dalam satu kalimat
+  mini: { title, intro, headers, rows, note },  // data mini yang dipakai di semua modul
+  kitIntro, kit: [{ title, body }],         // bekal pengetahuan
+  checks: [{ text, options, key, why }] }   // cek bekal, memberi XP dan lencana Siap berangkat
+```
+
+## sims.js dan Mode Ujian
+
+`sims.js` mengisi dua objek global, dan seluruh berkas wajib dibungkus `(() => { ... })();` supaya nama pembantunya tidak bentrok dengan skrip lain.
+
+- `window.PORTAL_SIMS = { nama: { mount(wadah, kit) } }`. Lihat `simulasi.md`.
+- `window.PORTAL_EXAM = { generators: [{ title, module, make(rand) }] }`. `make` mengembalikan `{ text, fields: [{ label, answer, tol? }], solution }`. Satu soal isian boleh punya beberapa kolom, seperti soal ujian yang berisi sekitar lima isian. Toleransi default 0,01 atau 0,5% dari jawaban.
+
+Mode Ujian menyusun paket dari kuis semua modul, generator ini, dan `essays`, lalu menjalankan timer: 1, 2, atau 3 menit per soal, 15 menit, 30 menit, atau durasi `examFormat.minutes`.

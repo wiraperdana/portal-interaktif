@@ -32,12 +32,19 @@ Kerjakan saat merancang peta modul (langkah 2) dan periksa lagi sebelum menyerah
 - [ ] Setiap asumsi dan syarat berlaku sebuah metode disebut, beserta akibatnya bila dilanggar.
 - [ ] Salah kaprah yang umum diberi `contrast` atau `trap`.
 
+### 3b. Data mini dan simulasi
+
+- [ ] Ada satu data mini yang dipakai di setiap modul, plus contoh yang lebih kompleks sesuai kebutuhan.
+- [ ] Setiap penurunan rumus penting punya komponen Turunkan sendiri.
+- [ ] Setiap modul dengan konsep yang bisa dimanipulasi punya simulasi.
+
 ### 4. Latihan setara ujian
 
 - [ ] Kuis tiap modul mencampur tiga jenis soal: konsep, hitungan, dan penalaran ("kenapa langkah ini sah?" atau "apa yang terjadi bila asumsi X dilanggar?").
 - [ ] Untuk topik kuantitatif, minimal dua dari lima soal kuis adalah soal hitungan.
 - [ ] `why` di kuis dan jawaban `check` menunjukkan cara mengerjakan, bukan hanya jawabannya.
 - [ ] Pengecoh kuis diambil dari kesalahan hitung yang nyata, misalnya lupa kolom angka 1 atau lupa membagi dua.
+- [ ] Mode Ujian punya generator soal isian untuk setiap jenis hitungan, esai untuk setiap penurunan besar, dan `examFormat` yang meniru ujian asli. Contoh UTS Fasilkom UI: 25 soal pilihan ganda dan isian (satu soal bisa berisi sekitar lima isian) ditambah 5 esai dalam 150 menit.
 
 ### 5. Kejujuran
 

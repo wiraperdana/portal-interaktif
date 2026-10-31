@@ -58,3 +58,13 @@ Label ini sudah disetujui dan dipakai di semua portal. Ia ditulis di `app.js`, j
 | Cek cepat | Field `check` |
 | Penjelasan dengan bahasamu | Field `inti.recall` |
 | Kuis | Lima soal per modul |
+
+## Dua gaya bahasa: Formal dan Santai
+
+Bila `voices` diisi, pembaca bisa memilih gaya. Formal adalah bawaan, mengikuti semua aturan di atas. Santai meniru kakak tingkat atau asisten dosen yang menjelaskan ke adik tingkat: "Bayangin gini", "Nah, ini persis...", "Gampang kan?".
+
+- Gaya santai hanya menimpa field naratif: `hook`, `inti.beats`, `question` per unit, dan `prep.intro`.
+- Definisi, rumus, kuis, dan kunci jawaban **tetap sama** di kedua gaya. Kenapa: yang diuji adalah konsepnya, dan dua versi definisi berisiko berbeda makna.
+- Santai tetap sopan dan tetap benar. Tidak ada singkatan chat (yg, gmn) dan tidak ada candaan yang mengaburkan konsep.
+
+Label baru yang baku: Persiapan, Mode Ujian, Simbol dan cara bacanya, Turunkan sendiri, Sering salah, Yang harus kamu kuasai, Data mini, Lencana.

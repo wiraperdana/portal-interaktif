@@ -52,8 +52,9 @@ Baca `references/intake.md`. Ringkasnya:
 1. Susun daftar istilah kanonik dari sumber. Satu konsep, satu nama. Bila sumber memakai dua nama untuk konsep yang sama, berhenti dan tanya.
 2. Kelompokkan jadi paling banyak empat bab (`chapters`), lalu modul. Sepuluh modul per topik sudah terbukti nyaman.
 3. Tiap modul berisi tiga sampai delapan unit Pendalaman. Satu unit membawa satu gagasan.
-4. Terapkan `references/standar-a.md` bagian 1 dan 2: petakan setiap butir sumber ke unit, lalu tambahkan unit **Kilas prasyarat** untuk pengetahuan awal yang melampaui SMA.
-5. Tunjukkan peta itu ke pengguna sebagai tabel: bab, modul, judul unit, dan istilah kunci. Tunggu persetujuan.
+4. Beri setiap modul judul pendek (`short`) yang langsung menyebut pokok bahasannya, misalnya "Residual & Loss". Rancang data mini, peta cerita Persiapan, dan satu simulasi untuk tiap modul yang membutuhkannya.
+5. Terapkan `references/standar-a.md` bagian 1 dan 2: petakan setiap butir sumber ke unit, lalu tambahkan unit **Kilas prasyarat** untuk pengetahuan awal yang melampaui SMA.
+6. Tunjukkan peta itu ke pengguna sebagai tabel: bab, modul, judul unit, dan istilah kunci. Tunggu persetujuan.
 
 ### 3. Pasang boilerplate
 
@@ -89,9 +90,12 @@ Baca `references/visual.md`. Ringkasnya:
 4. **Periksa setiap gambar secara visual.** Ejaan label, arah panah, jumlah panel, dan teks liar wajib dicek. Perbaiki dengan revisi sempit (gambar lama sebagai `--ref`), bukan generate ulang dari nol.
 5. Jalankan `node scripts/image-sizes.cjs <portal>` setiap kali gambar berubah.
 
-### 6. Simulasi (opsional)
+### 6. Simulasi, Mode Ujian, dan gamifikasi
 
-Bila sebuah konsep paling mudah dipahami dengan dicoba, tulis simulasinya di `sims.js` mengikuti `references/simulasi.md`, lalu pasang di unit lewat `sim: 'nama'`. Contoh lengkapnya ada di `boilerplate/sims.js` (bullwhip effect).
+1. Tulis satu simulasi untuk setiap modul yang punya konsep yang bisa dimanipulasi, di `sims.js` mengikuti `references/simulasi.md`, lalu pasang di unit lewat `sim: 'nama'`. Bungkus seluruh berkas dalam IIFE.
+2. Tulis generator soal isian `window.PORTAL_EXAM` untuk setiap jenis hitungan, dan `essays` untuk penurunan besar. Isi `examFormat` sesuai format ujian asli.
+3. Daftarkan lencana khusus topik di `game.badges` dan berikan lewat `kit.badge` saat tantangan simulasi berhasil.
+4. Bila pengguna menginginkan, isi `voices` dan field `informal` untuk gaya santai.
 
 ### 7. Periksa
 
@@ -113,6 +117,7 @@ Laporkan ke pengguna: jumlah modul, unit, soal, gambar, hasil QA, dan apa yang b
 - **Syarat selesai modul**: kelima soal dijawab dengan minimal empat benar, dan penjelasan dengan bahasamu minimal 40 karakter.
 - **Sitasi dan angka** di isi portal mengikuti aturan sitasi pengguna. Angka pasar dari ucapan lisan tidak dipakai sebelum diverifikasi ke sumber resmi.
 - **Kuota imagegen milik pengguna.** Brief dan gambar rujukan terkirim ke OpenAI. Jangan generate tanpa izin, dan sebut jumlah gambarnya sebelum mulai.
+- **Setiap kelebihan fitur dipakai penuh**: Persiapan, data mini, judul pendek, simulasi per modul, penurunan interaktif, Mode Ujian dengan timer, dan gamifikasi. Jangan melewatkan satu pun hanya karena butuh kerja lebih.
 - **Standar A tidak boleh ditawar.** Bagian sumber yang sulit diberi unit sendiri, bukan diringkas jadi satu kalimat.
 - Jangan pernah memakai em dash di isi portal.
 

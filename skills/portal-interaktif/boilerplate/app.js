@@ -32,7 +32,13 @@ const pad = n => String(n).padStart(2, '0');
 // Bab atau kelompok modul. Warna tiap kelompok diambil dari token --ch1 sampai --ch4 di style.css.
 const BAB = C.chapters.map((c, idx) => ({ ...c, idx, cls: `ch-${idx + 1}`, mods: C.modules.map((m, i) => (m.chapter === idx ? i : -1)).filter(i => i >= 0) }));
 const babOf = i => BAB[C.modules[i].chapter];
-const mod = i => ({ ...C.modules[i], i, num: i + 1, bab: babOf(i) });
+// Gaya bahasa: 'formal' atau 'santai'. Saat santai, field di objek informal menimpa field biasa
+// (modul, unit, persiapan). Definisi, rumus, dan kuis tetap sama di kedua gaya.
+const voice = () => (C.voices && state.voice === 'santai' ? 'santai' : 'formal');
+const vx = o => (o && voice() === 'santai' && o.informal ? { ...o, ...o.informal } : o);
+const mod = i => ({ ...vx(C.modules[i]), i, num: i + 1, bab: babOf(i) });
+// Judul pendek untuk menu dan peta pokok bahasan, misalnya "Residual & Loss".
+const shortOf = m => m.short || m.title;
 const NMOD = C.modules.length;
 
 // Identitas halaman diisi dari content.js.
@@ -51,7 +57,7 @@ function img(name, alt, extra = '') {
 
 // ---------- state lokal ----------
 const KEY = C.storageKey || `portal-${T.short.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-let state = { visited: {}, notes: {}, quiz: {}, fold: {}, last: null, theme: null, sidebar: 'open' };
+let state = { visited: {}, notes: {}, quiz: {}, fold: {}, last: null, theme: null, sidebar: 'open', xp: 0, awards: {}, badges: {}, derive: {}, prep: {}, exam: {}, calc: 0 };
 try { Object.assign(state, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) { /* penyimpanan tidak tersedia */ }
 delete state.done; // format lama v2 awal, kini dihitung dari kuis dan catatan
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* abaikan */ } };
@@ -75,6 +81,66 @@ function statusOf(i) {
   return { cls: '', label: '', icon: '' };
 }
 
+// ---------- gamifikasi: XP, level, dan lencana ----------
+// XP hanya diberikan untuk tanda paham (jawaban benar, penurunan, modul selesai), bukan untuk membuka halaman.
+// Setiap hadiah punya id, jadi mengulang kuis atau simulasi tidak memberi XP dua kali.
+const GAME = C.game || {};
+const LEVELS = GAME.levels || [[0, 'Pemula'], [100, 'Pelajar'], [300, 'Penalar'], [600, 'Analis'], [1000, 'Ahli']];
+const BADGES = [
+  { id: 'siap', icon: 'compass', title: 'Siap berangkat', desc: 'Menjawab benar semua cek bekal di Persiapan.' },
+  { id: 'langkah-pertama', icon: 'flag', title: 'Langkah pertama', desc: 'Menyelesaikan satu modul.' },
+  { id: 'tuntas', icon: 'trophy', title: 'Tuntas', desc: 'Menyelesaikan semua modul.' },
+  { id: 'penurun', icon: 'stairs', title: 'Penurun rumus', desc: 'Menyelesaikan satu penurunan tanpa membuka langkah.' },
+  { id: 'tanpa-contekan', icon: 'medal', title: 'Tanpa contekan', desc: 'Menyelesaikan semua penurunan tanpa membuka langkah.' },
+  { id: 'penghitung', icon: 'calculator', title: 'Penghitung', desc: 'Menjawab benar lima set latihan hitung acak.' },
+  { id: 'siap-ujian', icon: 'exam', title: 'Siap ujian', desc: 'Mendapat minimal 80% di Mode Ujian.' },
+  { id: 'sempurna', icon: 'star', title: 'Sempurna', desc: 'Mendapat 100% di paket ujian berisi minimal 12 soal.' },
+  ...(GAME.badges || []),
+];
+const levelOf = xp => {
+  let k = 0; LEVELS.forEach(([t], j) => { if (xp >= t) k = j; });
+  return { k, name: LEVELS[k][1], floor: LEVELS[k][0], next: LEVELS[k + 1] ? LEVELS[k + 1][0] : null };
+};
+const toastEl = document.createElement('div');
+toastEl.className = 'toast'; toastEl.setAttribute('role', 'status'); toastEl.hidden = true;
+document.body.append(toastEl);
+let toastTimer;
+function toast(html) { toastEl.innerHTML = html; toastEl.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { toastEl.hidden = true; }, 2800); }
+function award(id, xp, label) {
+  if (state.awards[id]) return false;
+  state.awards[id] = Date.now(); state.xp += xp; save();
+  toast(`<b>+${xp} XP</b> ${esc(label || '')}`);
+  checkBadges(); renderXp();
+  return true;
+}
+function badge(id) {
+  const b = BADGES.find(x => x.id === id);
+  if (!b || state.badges[id]) return;
+  state.badges[id] = Date.now(); save();
+  setTimeout(() => toast(`<i class="ph ph-${b.icon}" aria-hidden="true"></i> Lencana baru: <b>${esc(b.title)}</b>`), 1200);
+}
+// Daftar penurunan di seluruh portal, untuk lencana "Tanpa contekan".
+const DERIVES = C.modules.flatMap((m, i) => m.sections.map((u, k) => (u.derive ? `${i}-${k}` : null)).filter(Boolean));
+function checkBadges() {
+  const done = C.modules.filter((_, i) => progress(i).done).length;
+  if (done >= 1) badge('langkah-pertama');
+  if (done === C.modules.length) badge('tuntas');
+  if (DERIVES.some(d => state.derive[d] === 'clean')) badge('penurun');
+  if (DERIVES.length && DERIVES.every(d => state.derive[d] === 'clean')) badge('tanpa-contekan');
+  if (state.calc >= 5) badge('penghitung');
+}
+function renderXp() {
+  const el = document.getElementById('xpBox');
+  if (!el) return;
+  const L = levelOf(state.xp), pct = L.next ? Math.round((state.xp - L.floor) / (L.next - L.floor) * 100) : 100;
+  el.innerHTML = `<div class="xp-head"><strong><i class="ph ph-lightning" aria-hidden="true"></i>${esc(L.name)}</strong><span>${state.xp} XP</span></div>
+    <div class="xp-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Kemajuan ke level berikutnya"><span style="width:${pct}%"></span></div>
+    <small>${L.next ? `${L.next - state.xp} XP lagi ke ${esc(LEVELS[L.k + 1][1])} · ${Object.keys(state.badges).length}/${BADGES.length} lencana` : `Level tertinggi · ${Object.keys(state.badges).length}/${BADGES.length} lencana`}</small>`;
+}
+function badgeList() {
+  return `<ul class="badges">${BADGES.map(b => `<li class="${state.badges[b.id] ? 'got' : ''}"><i class="ph ph-${b.icon}" aria-hidden="true"></i><div><strong>${esc(b.title)}</strong><small>${esc(b.desc)}</small></div>${state.badges[b.id] ? '<span class="sr">sudah didapat</span>' : ''}</li>`).join('')}</ul>`;
+}
+
 if (state.theme) document.documentElement.dataset.theme = state.theme;
 $('#themeToggle').onclick = () => {
   const dark = state.theme ? state.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
@@ -82,6 +148,20 @@ $('#themeToggle').onclick = () => {
   document.documentElement.dataset.theme = state.theme;
   save();
 };
+// Tombol gaya bahasa, hanya bila content.js menyediakan voices.
+if (C.voices) {
+  const vb = document.createElement('button');
+  vb.className = 'icon-btn voice-btn'; vb.type = 'button'; vb.id = 'voiceToggle'; vb.dataset.tipPos = 'bottom';
+  const label = () => {
+    const s = voice() === 'santai';
+    vb.innerHTML = `<i class="ph ph-chat-circle-text" aria-hidden="true"></i><span>${s ? 'Santai' : 'Formal'}</span>`;
+    vb.setAttribute('aria-label', `Gaya bahasa ${s ? 'santai' : 'formal'}. Klik untuk mengganti.`);
+    vb.dataset.tip = s ? (C.voices.formal || 'Ganti ke gaya formal') : (C.voices.santai || 'Ganti ke gaya santai');
+  };
+  label();
+  vb.onclick = () => { state.voice = voice() === 'santai' ? 'formal' : 'santai'; save(); label(); route(); };
+  $('#themeToggle').before(vb);
+}
 
 // ---------- sidebar: lipat penuh dan lipat per bab ----------
 function applySidebar() {
@@ -142,22 +222,23 @@ document.addEventListener('click', e => {
 });
 
 // ---------- kerangka ----------
-const NAV = [['/', 'Beranda topik', 'house'], ['/latihan', 'Latihan', 'target'], ['/tanya', 'Tanya AI', 'sparkle']];
-const TABS = [['/', 'Beranda', 'house'], ['/latihan', 'Latihan', 'target'], ['/tanya', 'Tanya AI', 'sparkle'], ['/kursus', 'Topik', 'squares-four']];
+const NAV = [['/', 'Beranda topik', 'house'], ...(C.prep ? [['/persiapan', 'Persiapan', 'compass']] : []), ['/latihan', 'Latihan', 'target'], ['/ujian', 'Mode Ujian', 'exam'], ['/tanya', 'Tanya AI', 'sparkle']];
+const TABS = [['/', 'Beranda', 'house'], ...(C.prep ? [['/persiapan', 'Persiapan', 'compass']] : []), ['/latihan', 'Latihan', 'target'], ['/ujian', 'Ujian', 'exam'], ['/kursus', 'Topik', 'squares-four']];
 function frame(section, crumbs, currentModule) {
   const link = ([href, label, icon]) => `<a href="#${href}" ${section === href ? 'aria-current="page"' : ''}><i class="ph ph-${icon}" aria-hidden="true"></i><span>${label}</span></a>`;
   $('#primaryNav').innerHTML = NAV.map(link).join('');
   $('#tabbar').innerHTML = TABS.map(link).join('');
   $('#moduleTree').innerHTML = BAB.map(b => `<details class="${b.cls}" data-bab="${b.idx}" ${state.fold[b.idx] ? '' : 'open'}><summary><i class="ph ph-caret-right" aria-hidden="true"></i><span>${esc(b.label)}. ${esc(b.title)}</span></summary><ol>${b.mods.map(i => {
     const m = mod(i), st = statusOf(i);
-    return `<li><a href="#/modul/${m.num}" ${i === currentModule ? 'aria-current="page"' : ''} title="${esc(m.title)}"><span class="n">${pad(m.num)}</span><span class="t">${esc(m.title)}</span>${st.cls === 'done' ? '<i class="ph ph-check-circle" aria-label="selesai"></i>' : ''}</a></li>`;
+    return `<li><a href="#/modul/${m.num}" ${i === currentModule ? 'aria-current="page"' : ''} title="${esc(m.title)}"><span class="n">${pad(m.num)}</span><span class="t">${esc(shortOf(m))}</span>${st.cls === 'done' ? '<i class="ph ph-check-circle" aria-label="selesai"></i>' : ''}</a></li>`;
   }).join('')}</ol></details>`).join('');
   // Rail ikon: tetap bisa bernavigasi saat sidebar disembunyikan.
   $('#rail').innerHTML = `${NAV.map(([href, label, icon]) => `<a class="rail-btn" href="#${href}" ${section === href ? 'aria-current="page"' : ''} data-tip="${label}" aria-label="${label}"><i class="ph ph-${icon}" aria-hidden="true"></i></a>`).join('')}
     <span class="rail-sep" aria-hidden="true"></span>
-    ${P.modules.map((_, j) => { const mm = mod(j); return `<a class="rail-mod ${mm.bab.cls} ${progress(j).done ? 'done' : ''}" href="#/modul/${mm.num}" ${j === currentModule ? 'aria-current="page"' : ''} data-tip="${pad(mm.num)} ${esc(mm.title)}${progress(j).done ? ' (selesai)' : ''}" aria-label="Modul ${pad(mm.num)} ${esc(mm.title)}">${pad(mm.num)}</a>`; }).join('')}`;
+    ${P.modules.map((_, j) => { const mm = mod(j); return `<a class="rail-mod ${mm.bab.cls} ${progress(j).done ? 'done' : ''}" href="#/modul/${mm.num}" ${j === currentModule ? 'aria-current="page"' : ''} data-tip="${pad(mm.num)} ${esc(shortOf(mm))}${progress(j).done ? ' (selesai)' : ''}" aria-label="Modul ${pad(mm.num)} ${esc(mm.title)}">${pad(mm.num)}</a>`; }).join('')}`;
   $$('#moduleTree details').forEach(d => d.ontoggle = () => { state.fold[d.dataset.bab] = !d.open; save(); });
-  $('#sidebarProgress').innerHTML = `<strong>${doneCount()} / ${NMOD}</strong> modul selesai<div class="meter">${P.modules.map((_, i) => `<span class="${progress(i).done ? 'on' : ''}"></span>`).join('')}</div>`;
+  $('#sidebarProgress').innerHTML = `<div class="xp" id="xpBox"></div><strong>${doneCount()} / ${NMOD}</strong> modul selesai<div class="meter">${P.modules.map((_, i) => `<span class="${progress(i).done ? 'on' : ''}"></span>`).join('')}</div>`;
+  renderXp();
   const trail = COURSE ? [[COURSE.short || COURSE.name, '/kursus'], ...crumbs] : crumbs;
   $('#crumbs').innerHTML = trail.map((c, k) => k === trail.length - 1 ? `<span class="here">${esc(c[0])}</span>` : `<a href="#${c[1]}">${esc(c[0])}</a><span class="sep">/</span>`).join('');
   document.body.className = currentModule != null ? babOf(currentModule).cls : '';
@@ -172,7 +253,7 @@ function show(html) {
 function chapterLists() {
   return `<div class="chapters">${BAB.map(b => `<section class="chapter ${b.cls}"><header><small>${esc(b.label)}</small><h3>${esc(b.title)}</h3><p>${esc(b.sub || '')}</p></header><ol>${b.mods.map(i => {
     const m = mod(i), st = statusOf(i);
-    return `<li><a class="mod-row" href="#/modul/${m.num}"><span class="n">${pad(m.num)}</span><span><strong>${esc(m.title)}</strong><span class="h">${esc(m.hook)}</span></span><span class="st ${st.cls}">${st.icon ? `<i class="ph ph-${st.icon}" aria-hidden="true"></i>` : ''}${st.label}</span></a></li>`;
+    return `<li><a class="mod-row" href="#/modul/${m.num}"><span class="n">${pad(m.num)}</span><span><strong>${esc(shortOf(m))}</strong><span class="h">${esc(m.short ? m.title : m.hook)}</span></span><span class="st ${st.cls}">${st.icon ? `<i class="ph ph-${st.icon}" aria-hidden="true"></i>` : ''}${st.label}</span></a></li>`;
   }).join('')}</ol></section>`).join('')}</div>`;
 }
 
@@ -282,7 +363,8 @@ function home() {
       <h1>${T.titleHtml || esc(T.title)}</h1>
       <p class="lead">${esc(T.lead)}</p>
       <div class="actions">
-        <a class="btn" href="#/modul/${next.num}">${state.last != null ? 'Lanjutkan' : 'Mulai belajar'}<i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+        ${C.prep && state.last == null ? `<a class="btn" href="#/persiapan">Mulai dari Persiapan<i class="ph ph-arrow-right" aria-hidden="true"></i></a><a class="btn ghost" href="#/modul/1">Langsung ke Modul 01</a>` : `<a class="btn" href="#/modul/${next.num}">${state.last != null ? 'Lanjutkan' : 'Mulai belajar'}<i class="ph ph-arrow-right" aria-hidden="true"></i></a>${C.prep ? '<a class="btn ghost" href="#/persiapan">Persiapan</a>' : ''}`}
+        <a class="btn ghost" href="#/ujian"><i class="ph ph-exam" aria-hidden="true"></i>Mode Ujian</a>
       </div>
       <div class="status-line">
         <span><strong>${doneCount()}/${NMOD}</strong> modul selesai</span>
@@ -296,6 +378,9 @@ function home() {
     <h2 id="gainsTitle">Setelah menguasai topik ini</h2>
     <ul>${T.gains.map(g => `<li><i class="ph ph-${g.icon}" aria-hidden="true"></i><div><strong>${esc(g.title)}</strong><p>${esc(g.text)}</p></div></li>`).join('')}</ul>
   </section>` : ''}
+
+  <div class="section-head"><h2>Yang harus kamu kuasai</h2></div>
+  ${skimBlock()}
 
   <div class="section-head"><h2>Mindmap topik</h2></div>
   ${topicMindmap()}
@@ -316,7 +401,7 @@ function practiceBlock() {
 
 function latihan() {
   frame('/latihan', [[T.short, '/'], ['Latihan']]);
-  show(`<div class="page-head"><h1>Latihan</h1><p>Kuis tiap modul. Modul selesai setelah kuis lulus dan penjelasan dengan bahasamu ditulis.</p></div><div style="height:28px"></div>${practiceBlock()}`);
+  show(`<div class="page-head"><h1>Latihan</h1><p>Kuis tiap modul. Modul selesai setelah kuis lulus dan penjelasan dengan bahasamu ditulis. Untuk latihan bersyarat waktu, buka <a href="#/ujian">Mode Ujian</a>.</p></div><div style="height:28px"></div>${practiceBlock()}<div class="section-head"><h2>Lencana</h2></div>${badgeList()}`);
 }
 
 // ---------- halaman modul ----------
@@ -370,6 +455,7 @@ $('#slidePrev').onclick = () => stepSlide(-1);
 $('#slideNext').onclick = () => stepSlide(1);
 $('#slideDialog').addEventListener('keydown', e => { if (e.key === 'ArrowRight') $('#slideNext').click(); if (e.key === 'ArrowLeft') $('#slidePrev').click(); });
 function unitBlock(u, k, i) {
+  u = vx(u);
   const label = (icon, text) => `<span class="unit-label"><i class="ph ph-${icon}" aria-hidden="true"></i>${text}</span>`;
   const tileData = Array.isArray(u.tiles) ? u.tiles : u.tiles ? P.conceptTiles[i] : null;
   const tiles = tileData ? `<div class="tiles">${tileData.map(([t, d]) => `<div class="tile"><strong>${esc(t)}</strong><p>${esc(d)}</p></div>`).join('')}</div>` : '';
@@ -383,8 +469,11 @@ function unitBlock(u, k, i) {
       ${u.note ? `<p class="unit-note"><i class="ph ph-info" aria-hidden="true"></i><span>${esc(u.note)}</span></p>` : ''}
     </div>
     <div class="unit-define">${label('book-open', 'Definisi')}<p>${richTerms(u.define)}</p></div>
+    ${u.symbols ? `<div class="unit-symbols">${label('function', 'Simbol dan cara bacanya')}<dl>${u.symbols.map(([a, b]) => `<div><dt>${rich(a)}</dt><dd>${rich(b)}</dd></div>`).join('')}</dl></div>` : ''}
     ${tiles}
+    ${u.derive ? `<div class="unit-derive" data-derive="${i}-${k}"></div>` : ''}
     ${u.contrast ? `<div class="unit-contrast">${label('scales', 'Yang sering tertukar')}<p>${rich(u.contrast)}</p></div>` : ''}
+    ${u.mistakes ? `<div class="unit-mistakes">${label('warning-circle', 'Sering salah')}<ul>${u.mistakes.map(x => `<li>${rich(x)}</li>`).join('')}</ul></div>` : ''}
     ${u.lecturer ? `<div class="unit-lecturer">${label('star', 'Poin penting')}<p>${rich(u.lecturer)}</p></div>` : ''}
     <details class="unit-check"><summary><i class="ph ph-question" aria-hidden="true"></i><span><b>Cek cepat.</b> ${esc(u.check.q)}</span></summary><p>${rich(u.check.a)}</p></details>
   </section>`;
@@ -452,7 +541,8 @@ function modulePage(num, anchor) {
   const crumbs = [[T.short, '/'], [b.label, '/'], [`${pad(m.num)} ${m.title}`]];
   frame('', crumbs, i);
 
-  const R = REF[i], I = R && R.inti;
+  const R = REF[i], informal = voice() === 'santai' && C.modules[i].informal && C.modules[i].informal.inti;
+  const I = informal ? { ...R.inti, ...informal } : R.inti;
   const sections = R.sections.map(u => [u.title, unitText(u)]);
   const after = {};
   const put = (k, html) => { (after[k] = after[k] || []).push(html); };
@@ -496,6 +586,7 @@ function modulePage(num, anchor) {
 
     <section class="part" id="pendalaman">
       <div class="part-label"><span class="part-icon"><i class="ph ph-stack" aria-hidden="true"></i></span><div><small>Bagian 2 dari 3</small><h2>Pendalaman</h2></div></div>
+      <p class="skip-link"><a href="#/modul/${num}/cek-soal" data-goto="cek-soal"><i class="ph ph-arrow-down" aria-hidden="true"></i>Sudah paham? Langsung ke kuis</a></p>
       <div class="sub" id="p-peta"><h3>Mindmap modul</h3></div>
       ${moduleMindmap(i)}
       ${tiles ? `<div class="tiles">${tiles.map(([t, d]) => `<div class="tile"><strong>${esc(t)}</strong><p>${esc(d)}</p></div>`).join('')}</div>` : ''}
@@ -542,6 +633,8 @@ function modulePage(num, anchor) {
     $('#modStatus').innerHTML = st.label ? `<i class="ph ph-${st.icon}" aria-hidden="true"></i>${st.label}` : '';
     $('#modStatus').className = `mod-status ${st.cls}`;
     const n = (state.notes[i] || '').trim().length;
+    if (progress(i).recall) award(`recall-${i}`, 10, 'Penjelasan ditulis');
+    if (progress(i).done) award(`done-${i}`, 50, `Modul ${pad(num)} selesai`);
     $('#recallCount').textContent = n >= RECALL_MIN ? 'Tersimpan otomatis di browser ini.' : `${n}/${RECALL_MIN} karakter minimal. Tersimpan otomatis.`;
     frame('', crumbs, i);
   };
@@ -552,6 +645,7 @@ function modulePage(num, anchor) {
       state.quiz[i] = state.quiz[i] || {};
       if (state.quiz[i][k] != null) return;
       state.quiz[i][k] = +el.dataset.k;
+      if (state.quiz[i][k] === QS[i][k].key) award(`q-${i}-${k}`, 10, 'Jawaban kuis benar');
       save(); renderQuiz(); refresh();
     });
     $$('#quiz [data-go]').forEach(el => el.onclick = () => {
@@ -588,6 +682,7 @@ function modulePage(num, anchor) {
   links.forEach((_, id) => { const el = document.getElementById(id); if (el) io.observe(el); });
 
   $$('.sim-mount').forEach(el => SIMS[el.dataset.sim].mount(el, simKit(el.dataset.sim)));
+  $$('[data-derive]').forEach(el => { const [a, b] = el.dataset.derive.split('-').map(Number); mountDerive(el, C.modules[a].sections[b].derive, el.dataset.derive); });
   if (anchor) requestAnimationFrame(() => scrollToId(anchor));
   else window.scrollTo(0, 0);
 }
@@ -606,7 +701,247 @@ function bindPageActions() {
 // Simulasi interaktif bersifat khusus topik, jadi kodenya tinggal di sims.js (window.PORTAL_SIMS).
 // Unit dengan sim: 'nama' mendapat wadah; fungsi mount(wadah, kit) dari sims.js mengisinya.
 const SIMS = window.PORTAL_SIMS || {};
-const simKit = name => ({ $, $$, esc, text: (C.simulations && C.simulations[name]) || {} });
+// kit.award dan kit.badge membuat simulasi bisa memberi XP dan lencana khusus topik (C.game.badges).
+const simKit = name => ({ $, $$, esc, text: (C.simulations && C.simulations[name]) || {}, award: (id, xp, label) => award(`sim-${name}-${id}`, xp, label), badge });
+
+// ---------- peta pokok bahasan ----------
+// Satu baris per modul: judul pendek, tujuan, dan istilah yang wajib dikuasai. Untuk memindai cepat.
+function skimBlock() {
+  return `<ol class="skim">${C.modules.map((_, i) => {
+    const m = mod(i), st = statusOf(i);
+    const terms = P.canonicalTopics[i].map(t => [t, termKey(t)]).filter(([, k]) => k);
+    return `<li class="${m.bab.cls}"><a class="skim-n" href="#/modul/${m.num}">${pad(m.num)}</a><div>
+      <a class="skim-t" href="#/modul/${m.num}"><strong>${esc(shortOf(m))}</strong>${st.icon ? `<i class="ph ph-${st.icon} ${st.cls}" aria-label="${st.label}"></i>` : ''}</a>
+      <p>${esc(m.goal)}</p>
+      ${terms.length ? `<div class="chips">${terms.map(([t, k]) => `<button class="chip" type="button" data-term="${esc(k)}" data-label="${esc(t)}">${esc(t)}</button>`).join('')}</div>` : ''}
+    </div></li>`;
+  }).join('')}</ol>`;
+}
+
+// ---------- Persiapan ----------
+function persiapan() {
+  const Q = vx(C.prep || {});
+  frame('/persiapan', [[T.short, '/'], ['Persiapan']]);
+  show(`<div class="page-head"><h1>${esc(Q.title || 'Persiapan')}</h1><p>${rich(Q.intro || '')}</p></div>
+  ${Q.usage ? `<section class="gains"><h2>Cara memakai portal ini</h2><ul>${Q.usage.map(g => `<li><i class="ph ph-${g.icon}" aria-hidden="true"></i><div><strong>${esc(g.title)}</strong><p>${rich(g.text)}</p></div></li>`).join('')}</ul></section>` : ''}
+  <div class="section-head"><h2>Yang harus kamu kuasai</h2></div>${skimBlock()}
+  ${Q.story ? `<div class="section-head"><h2>Alur ceritanya</h2></div><ol class="story-map">${Q.story.map((x, j) => `<li><span class="n">${j + 1}</span><div><strong>${rich(x.q)}</strong><p>${richTerms(x.a)}</p>${x.module ? `<a href="#/modul/${x.module}">Modul ${pad(x.module)} · ${esc(shortOf(mod(x.module - 1)))}</a>` : ''}</div></li>`).join('')}</ol>` : ''}
+  ${Q.oneLine ? `<div class="one-line"><small>Seluruh materi dalam satu kalimat</small><p>${richTerms(Q.oneLine)}</p></div>` : ''}
+  ${Q.mini ? `<div class="section-head"><h2>${esc(Q.mini.title || 'Data mini')}</h2></div><p>${rich(Q.mini.intro || '')}</p>
+    <div class="table-wrap"><table class="mini-table"><thead><tr>${Q.mini.headers.map(h => `<th>${rich(h)}</th>`).join('')}</tr></thead><tbody>${Q.mini.rows.map(r => `<tr>${r.map(c => `<td>${rich(String(c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    ${Q.mini.note ? `<p class="muted">${rich(Q.mini.note)}</p>` : ''}` : ''}
+  ${Q.kit ? `<div class="section-head"><h2>Bekal pengetahuan</h2></div>${Q.kitIntro ? `<p>${rich(Q.kitIntro)}</p>` : ''}<div class="kit">${Q.kit.map(k => `<div class="kit-card"><strong>${rich(k.title)}</strong><p>${rich(k.body)}</p></div>`).join('')}</div>` : ''}
+  ${Q.checks ? `<div class="section-head"><h2>Cek bekal</h2></div><div id="prepChecks"></div>` : ''}
+  ${C.traps ? `<div class="section-head"><h2>Jebakan di bahan sumber</h2></div>${C.trapsIntro ? `<p>${rich(C.trapsIntro)}</p>` : ''}
+    <div class="table-wrap"><table class="trap-table"><thead><tr><th>Bagian</th><th>Tertulis</th><th>Yang benar</th><th>Keyakinan</th></tr></thead><tbody>${C.traps.map(t => `<tr><td>${esc(t.where)}</td><td>${rich(t.written)}</td><td>${rich(t.correct)}</td><td><span class="conf ${t.confidence === 'Tinggi' ? 'hi' : 'mid'}">${esc(t.confidence)}</span></td></tr>`).join('')}</tbody></table></div>` : ''}
+  <div class="actions prep-go"><a class="btn" href="#/modul/1">Mulai Modul 01<i class="ph ph-arrow-right" aria-hidden="true"></i></a></div>`);
+  if (Q.checks) mountPrepChecks(Q.checks);
+}
+function mountPrepChecks(list) {
+  const el = $('#prepChecks');
+  const draw = () => {
+    el.innerHTML = list.map((q, j) => {
+      const a = state.prep[j], done = a != null;
+      return `<div class="card prep-q" data-j="${j}"><p class="q">${rich(q.text)}</p><div class="options">${optionOrder(800, j, q.options.length).map((o, pos) => {
+        const cls = done ? (o === q.key ? 'right' : o === a ? 'wrong' : '') : '';
+        return `<button class="option ${cls}" type="button" data-k="${o}" ${done ? 'disabled' : ''}><span class="k">${'ABCDE'[pos]}</span>${rich(q.options[o])}</button>`;
+      }).join('')}</div>${done ? `<div class="feedback"><strong class="${a === q.key ? 'ok' : 'no'}">${a === q.key ? 'Tepat.' : 'Belum tepat.'}</strong><p>${rich(q.why)}</p></div>` : ''}</div>`;
+    }).join('') + `<button class="btn ghost small" type="button" id="prepReset">Ulangi cek bekal</button>`;
+    el.querySelectorAll('.option').forEach(b => b.onclick = () => {
+      const j = +b.closest('.prep-q').dataset.j;
+      state.prep[j] = +b.dataset.k; save();
+      if (state.prep[j] === list[j].key) award(`prep-${j}`, 5, 'Cek bekal benar');
+      if (list.every((q, x) => state.prep[x] === q.key)) badge('siap');
+      draw();
+    });
+    $('#prepReset').onclick = () => { state.prep = {}; save(); draw(); };
+  };
+  draw();
+}
+
+// ---------- penurunan interaktif ----------
+// unit.derive = { intro, steps: [{ prompt, options, key, show, why, hint }] }.
+// Langkah berikutnya baru terbuka setelah pilihan yang benar dipilih. "Buka langkah" boleh, tetapi tanpa XP.
+function mountDerive(el, d, id) {
+  let s = 0, helped = false;
+  const finish = () => {
+    if (s < d.steps.length) return;
+    if (!helped) { state.derive[id] = 'clean'; award(`dd-${id}`, 20, 'Penurunan tuntas tanpa bantuan'); }
+    else if (state.derive[id] !== 'clean') state.derive[id] = 'helped';
+    save(); checkBadges();
+  };
+  const draw = () => {
+    const cur = d.steps[s];
+    el.innerHTML = `<span class="unit-label"><i class="ph ph-stairs" aria-hidden="true"></i>Turunkan sendiri</span>
+      ${d.intro ? `<p>${rich(d.intro)}</p>` : ''}
+      ${s ? `<ol class="derive-done">${d.steps.slice(0, s).map(st => `<li><div>${rich(st.show)}</div>${st.why ? `<small>${rich(st.why)}</small>` : ''}</li>`).join('')}</ol>` : ''}
+      ${cur ? `<div class="derive-ask"><p><b>Langkah ${s + 1} dari ${d.steps.length}.</b> ${rich(cur.prompt || 'Pilih langkah berikutnya.')}</p>
+        <div class="options">${optionOrder(900 + id.length, s, cur.options.length).map((j, pos) => `<button class="option" type="button" data-k="${j}"><span class="k">${'ABCDE'[pos]}</span><span>${rich(cur.options[j])}</span></button>`).join('')}</div>
+        <p class="derive-fb" aria-live="polite"></p>
+        <button class="btn ghost small" type="button" data-reveal>Buka langkah ini</button></div>`
+      : `<p class="derive-end"><i class="ph ph-check-circle" aria-hidden="true"></i>${helped ? 'Penurunan lengkap dengan bantuan. Ulangi tanpa membuka langkah untuk mendapat lencana.' : 'Penurunan lengkap tanpa membuka langkah.'} <button class="btn ghost small" type="button" data-restart>Ulangi</button></p>`}`;
+    el.querySelectorAll('.option').forEach(b => b.onclick = () => {
+      if (+b.dataset.k === cur.key) { if (!helped) award(`d-${id}-${s}`, 5, 'Langkah penurunan benar'); s++; finish(); draw(); }
+      else { b.classList.add('wrong'); b.disabled = true; el.querySelector('.derive-fb').innerHTML = rich(cur.hint || 'Belum tepat. Periksa ukuran matriks atau tanda, lalu coba lagi.'); }
+    });
+    const rv = el.querySelector('[data-reveal]'); if (rv) rv.onclick = () => { helped = true; s++; finish(); draw(); };
+    const rs = el.querySelector('[data-restart]'); if (rs) rs.onclick = () => { s = 0; helped = false; draw(); };
+  };
+  draw();
+}
+
+// ---------- Mode Ujian ----------
+// Soal pilihan ganda diambil dari kuis semua modul. Soal isian dibuat generator di sims.js (window.PORTAL_EXAM),
+// satu soal bisa berisi beberapa kolom angka. Soal esai dari content.js essays, dinilai sendiri dengan rubrik.
+const GENS = (window.PORTAL_EXAM && window.PORTAL_EXAM.generators) || [];
+const ESSAYS = C.essays || [];
+const FORMAT = { pg: 15, isian: 10, essay: 5, minutes: 150, ...(C.examFormat || {}) };
+const POOL = QS.flatMap((qs, i) => qs.map((q, k) => ({ type: 'pg', i, k, q })));
+const shuffle = a => { a = a.slice(); for (let j = a.length - 1; j > 0; j--) { const r = Math.floor(Math.random() * (j + 1)); [a[j], a[r]] = [a[r], a[j]]; } return a; };
+const readNum = v => { const x = parseFloat(String(v ?? '').trim().replace(/\s/g, '').replace(',', '.')); return Number.isFinite(x) ? x : null; };
+const fmtNum = x => (Math.round(x * 10000) / 10000).toLocaleString('id-ID', { maximumFractionDigits: 4 });
+const tolOf = f => (f.tol != null ? f.tol : Math.max(0.01, Math.abs(f.answer) * 0.005));
+const makeCalc = g => ({ type: 'isian', module: g.module, title: g.title, ...g.make(Math.random) });
+const fullCount = () => Math.min(FORMAT.pg, POOL.length) + (GENS.length ? FORMAT.isian : 0) + Math.min(FORMAT.essay, ESSAYS.length);
+const PACKS = [
+  { id: 'cepat', title: 'Paket cepat', desc: '12 soal pilihan ganda', build: () => shuffle(POOL).slice(0, 12) },
+  { id: 'menengah', title: 'Paket menengah', desc: '24 soal pilihan ganda', build: () => shuffle(POOL).slice(0, 24) },
+  { id: 'semua', title: 'Semua soal', desc: `${POOL.length} soal pilihan ganda`, build: () => shuffle(POOL) },
+  ...((GENS.length || ESSAYS.length) ? [{
+    id: 'penuh', title: 'Simulasi ujian penuh',
+    desc: `${Math.min(FORMAT.pg, POOL.length)} pilihan ganda, ${GENS.length ? FORMAT.isian : 0} isian, ${Math.min(FORMAT.essay, ESSAYS.length)} esai`,
+    build: () => [...shuffle(POOL).slice(0, FORMAT.pg), ...(GENS.length ? Array.from({ length: FORMAT.isian }, (_, j) => makeCalc(GENS[j % GENS.length])) : []), ...shuffle(ESSAYS).slice(0, FORMAT.essay).map(e => ({ type: 'essay', ...e }))],
+  }] : []),
+];
+const TIMES = [['none', 'Tanpa batas waktu'], ['q1', '1 menit per soal'], ['q2', '2 menit per soal'], ['q3', '3 menit per soal'], ['m15', '15 menit'], ['m30', '30 menit'], ['format', `Format ujian, ${FORMAT.minutes} menit`]];
+const timeMinutes = (t, n) => ({ none: 0, q1: n, q2: n * 2, q3: n * 3, m15: 15, m30: 30, format: FORMAT.minutes }[t] || 0);
+let EXAM = null;
+function ujian() {
+  frame('/ujian', [[T.short, '/'], ['Mode Ujian']]);
+  if (EXAM && !EXAM.result) examRun(); else if (EXAM && EXAM.result) examResult(); else examSetup();
+}
+function examSetup() {
+  const best = id => (state.exam[id] != null ? `Skor terbaik ${state.exam[id]}%` : 'Belum dicoba');
+  show(`<div class="page-head"><h1>Mode Ujian</h1><p>Kerjakan dalam batas waktu tanpa membuka materi. Setelah dikumpulkan, hasil menandai modul yang perlu diulang.</p></div>
+  <div class="card exam-setup">
+    <fieldset><legend>Paket soal</legend><div class="pack-grid">${PACKS.map((p, j) => `<label class="pack"><input type="radio" name="pack" value="${p.id}" ${j === 0 ? 'checked' : ''}><span><strong>${esc(p.title)}</strong><small>${esc(p.desc)}</small><small class="muted">${best(p.id)}</small></span></label>`).join('')}</div></fieldset>
+    <fieldset><legend>Waktu</legend><div class="time-grid">${TIMES.map(([v, l], j) => `<label class="pill"><input type="radio" name="time" value="${v}" ${j === 2 ? 'checked' : ''}><span>${esc(l)}</span></label>`).join('')}</div>
+      <p class="muted" id="timeNote"></p></fieldset>
+    <button class="btn" id="examStart" type="button"><i class="ph ph-play" aria-hidden="true"></i>Mulai ujian</button>
+  </div>
+  ${GENS.length ? `<div class="section-head"><h2>Latihan hitung acak</h2></div><p class="muted">Setiap set berisi angka baru. Kerjakan di kertas, isi semua kolom, lalu periksa. Desimal boleh memakai koma atau titik.</p><div id="calcMount"></div>` : ''}
+  <div class="section-head"><h2>Lencana</h2></div>${badgeList()}`);
+  const note = () => {
+    const p = PACKS.find(x => x.id === $('input[name=pack]:checked').value);
+    const n = p.id === 'penuh' ? fullCount() : p.id === 'semua' ? POOL.length : p.id === 'menengah' ? Math.min(24, POOL.length) : Math.min(12, POOL.length);
+    const m = timeMinutes($('input[name=time]:checked').value, n);
+    $('#timeNote').textContent = m ? `${n} soal, waktu ${m} menit. Jawaban dikumpulkan otomatis saat waktu habis.` : `${n} soal tanpa batas waktu.`;
+  };
+  $$('input[name=pack], input[name=time]').forEach(r => r.onchange = note); note();
+  $('#examStart').onclick = () => {
+    const pack = PACKS.find(x => x.id === $('input[name=pack]:checked').value);
+    const items = pack.build(), mins = timeMinutes($('input[name=time]:checked').value, items.length);
+    EXAM = { pack, items, answers: {}, start: Date.now(), ends: mins ? Date.now() + mins * 60000 : null, result: null };
+    examRun();
+  };
+  if (GENS.length) mountCalcPractice();
+}
+function examItemHtml(it, idx) {
+  const a = EXAM.answers[idx];
+  if (it.type === 'pg') return `<p class="q">${esc(it.q.text)}</p><div class="options">${optionOrder(it.i, it.k, it.q.options.length).map((j, pos) => `<button class="option ${a === j ? 'picked' : ''}" type="button" data-k="${j}" aria-pressed="${a === j}"><span class="k">${'ABCDE'[pos]}</span>${esc(it.q.options[j])}</button>`).join('')}</div>`;
+  if (it.type === 'isian') return `<p class="q">${rich(it.text)}</p><div class="calc-fields">${it.fields.map((f, j) => `<label class="field"><span>${rich(f.label)}</span><input inputmode="decimal" autocomplete="off" data-f="${j}" value="${esc((a || [])[j] || '')}"></label>`).join('')}</div>`;
+  return `<p class="q">${rich(it.prompt)}</p><textarea data-essay placeholder="Tulis jawabanmu. Untuk penurunan, tulis langkahnya satu per satu.">${esc(a || '')}</textarea>`;
+}
+let examTick = null;
+function examRun() {
+  const E = EXAM;
+  show(`<div class="exam-bar"><strong>${esc(E.pack.title)}</strong><span class="clock" id="examClock"></span><span class="muted" id="examCount"></span><button class="btn small" type="button" data-submit>Kumpulkan</button></div>
+  <ol class="exam-list">${E.items.map((it, idx) => `<li class="exam-item" data-idx="${idx}"><div class="ex-meta">Soal ${idx + 1} · ${it.type === 'pg' ? 'Pilihan ganda' : it.type === 'isian' ? 'Isian' : 'Esai'}</div>${examItemHtml(it, idx)}</li>`).join('')}</ol>
+  <div class="exam-foot"><button class="btn" type="button" data-submit>Kumpulkan jawaban</button></div>`);
+  const count = () => { const n = E.items.filter((it, idx) => { const a = E.answers[idx]; return it.type === 'isian' ? (a || []).some(v => v) : a != null && a !== ''; }).length; $('#examCount').textContent = `${n}/${E.items.length} dijawab`; };
+  $$('.exam-item').forEach(li => {
+    const idx = +li.dataset.idx;
+    li.querySelectorAll('.option').forEach(b => b.onclick = () => { E.answers[idx] = +b.dataset.k; li.querySelectorAll('.option').forEach(o => { o.classList.toggle('picked', o === b); o.setAttribute('aria-pressed', String(o === b)); }); count(); });
+    li.querySelectorAll('[data-f]').forEach(inp => inp.oninput = () => { E.answers[idx] = E.answers[idx] || []; E.answers[idx][+inp.dataset.f] = inp.value; count(); });
+    const ta = li.querySelector('[data-essay]'); if (ta) ta.oninput = () => { E.answers[idx] = ta.value; count(); };
+  });
+  $$('[data-submit]').forEach(b => b.onclick = () => { if (confirm('Kumpulkan jawaban sekarang?')) examSubmit(); });
+  count();
+  clearInterval(examTick);
+  const tick = () => {
+    if (!EXAM || EXAM.result) { clearInterval(examTick); return; }
+    if (!E.ends) { const el = $('#examClock'); if (el) el.textContent = 'Tanpa batas waktu'; return; }
+    const left = Math.max(0, E.ends - Date.now());
+    const el = $('#examClock');
+    if (el) { const mm = Math.floor(left / 60000), ss = Math.floor(left / 1000) % 60; el.textContent = `Sisa ${mm}:${String(ss).padStart(2, '0')}`; el.classList.toggle('low', left < 5 * 60000); }
+    if (left <= 0) { examSubmit(true); }
+  };
+  tick(); examTick = setInterval(tick, 1000);
+}
+function examSubmit(auto) {
+  const E = EXAM; clearInterval(examTick);
+  let got = 0, max = 0; const weak = new Set();
+  E.items.forEach((it, idx) => {
+    const a = E.answers[idx];
+    if (it.type === 'pg') { max++; if (a === it.q.key) got++; else weak.add(it.i); }
+    else if (it.type === 'isian') {
+      max++;
+      const ok = it.fields.map((f, j) => { const v = readNum((a || [])[j]); return v != null && Math.abs(v - f.answer) <= tolOf(f); });
+      it.ok = ok; got += ok.filter(Boolean).length / ok.length;
+      if (ok.some(x => !x) && it.module) weak.add(it.module - 1);
+    }
+  });
+  const score = max ? Math.round(got / max * 100) : 0;
+  E.result = { score, got, max, weak: [...weak].sort((x, y) => x - y), auto: !!auto, used: Math.round((Date.now() - E.start) / 60000) };
+  state.exam[E.pack.id] = Math.max(state.exam[E.pack.id] || 0, score); save();
+  if (score >= 80) { award(`exam-${E.pack.id}`, 50, `Lulus ${E.pack.title}`); badge('siap-ujian'); }
+  if (score === 100 && max >= 12) badge('sempurna');
+  examResult();
+}
+function examResult() {
+  const E = EXAM, R = E.result;
+  frame('/ujian', [[T.short, '/'], ['Mode Ujian'], ['Hasil']]);
+  show(`<div class="page-head"><h1>Hasil ${esc(E.pack.title)}</h1><p>${R.auto ? 'Waktu habis, jawaban dikumpulkan otomatis. ' : ''}Waktu terpakai sekitar ${R.used} menit.</p></div>
+  <div class="card exam-score"><strong class="qscore">${R.score}<small>%</small></strong><p>Pilihan ganda dan isian: ${fmtNum(R.got)} dari ${R.max} poin. ${E.items.some(it => it.type === 'essay') ? 'Esai dinilai sendiri dengan rubrik di bawah.' : ''}</p>
+    ${R.weak.length ? `<p><strong>Modul yang perlu diulang:</strong></p><div class="chips">${R.weak.map(i => `<a class="chip" href="#/modul/${i + 1}">${pad(i + 1)} ${esc(shortOf(mod(i)))}</a>`).join('')}</div>` : '<p>Tidak ada modul yang lemah di paket ini.</p>'}
+    <div class="actions"><button class="btn" type="button" id="examAgain">Ujian baru</button></div></div>
+  <ol class="exam-list review">${E.items.map((it, idx) => {
+    const a = E.answers[idx];
+    if (it.type === 'pg') {
+      const ok = a === it.q.key;
+      return `<li class="exam-item ${ok ? 'is-right' : 'is-wrong'}"><div class="ex-meta">Soal ${idx + 1} · Pilihan ganda · <a href="#/modul/${it.i + 1}">Modul ${pad(it.i + 1)}</a></div><p class="q">${esc(it.q.text)}</p>
+        <p><b>${ok ? 'Benar' : 'Salah'}.</b> Jawabanmu: ${a != null ? esc(it.q.options[a]) : '<i>kosong</i>'}. Kunci: ${esc(it.q.options[it.q.key])}.</p><p class="muted">${esc(it.q.why)}</p></li>`;
+    }
+    if (it.type === 'isian') return `<li class="exam-item ${it.ok && it.ok.every(Boolean) ? 'is-right' : 'is-wrong'}"><div class="ex-meta">Soal ${idx + 1} · Isian${it.module ? ` · <a href="#/modul/${it.module}">Modul ${pad(it.module)}</a>` : ''}</div><p class="q">${rich(it.text)}</p>
+      <ul class="calc-review">${it.fields.map((f, j) => `<li class="${it.ok && it.ok[j] ? 'ok' : 'no'}">${rich(f.label)}: jawabanmu <b>${esc((a || [])[j] || 'kosong')}</b>, kunci <b>${fmtNum(f.answer)}</b></li>`).join('')}</ul>
+      ${it.solution ? `<details class="reveal"><summary><i class="ph ph-caret-right" aria-hidden="true"></i>Pembahasan</summary><div class="inner"><p>${rich(it.solution)}</p></div></details>` : ''}</li>`;
+    return `<li class="exam-item"><div class="ex-meta">Soal ${idx + 1} · Esai${it.module ? ` · <a href="#/modul/${it.module}">Modul ${pad(it.module)}</a>` : ''}</div><p class="q">${rich(it.prompt)}</p>
+      <p class="muted">Jawabanmu:</p><p class="essay-mine">${esc(a || 'kosong')}</p>
+      <div class="rubric"><strong>Rubrik penilaian sendiri</strong><ul>${(it.rubric || []).map(r => `<li><label><input type="checkbox"> ${rich(r)}</label></li>`).join('')}</ul></div>
+      <details class="reveal"><summary><i class="ph ph-caret-right" aria-hidden="true"></i>Contoh jawaban</summary><div class="inner"><p>${rich(it.answer)}</p></div></details></li>`;
+  }).join('')}</ol>`);
+  $('#examAgain').onclick = () => { EXAM = null; ujian(); window.scrollTo(0, 0); };
+}
+// Latihan hitung acak: satu generator per tab, set baru setiap kali diminta.
+function mountCalcPractice() {
+  let g = 0, set = makeCalc(GENS[0]), checked = false;
+  const el = $('#calcMount');
+  const draw = () => {
+    el.innerHTML = `<div class="calc-tabs" role="tablist">${GENS.map((x, j) => `<button type="button" role="tab" class="pill-btn ${j === g ? 'on' : ''}" aria-selected="${j === g}" data-g="${j}">${esc(x.title)}</button>`).join('')}</div>
+    <div class="card calc-card"><p class="q">${rich(set.text)}</p><div class="calc-fields">${set.fields.map((f, j) => `<label class="field"><span>${rich(f.label)}</span><input inputmode="decimal" autocomplete="off" data-f="${j}"></label>`).join('')}</div>
+      <div class="actions"><button class="btn small" type="button" id="calcCheck">Periksa</button><button class="btn ghost small" type="button" id="calcNew">Soal baru</button></div>
+      <div id="calcOut" aria-live="polite"></div></div>`;
+    el.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { g = +b.dataset.g; set = makeCalc(GENS[g]); checked = false; draw(); });
+    $('#calcNew').onclick = () => { set = makeCalc(GENS[g]); checked = false; draw(); };
+    $('#calcCheck').onclick = () => {
+      const ok = set.fields.map((f, j) => { const inp = el.querySelector(`[data-f="${j}"]`), v = readNum(inp.value), r = v != null && Math.abs(v - f.answer) <= tolOf(f); inp.classList.toggle('right', r); inp.classList.toggle('wrong', !r); return r; });
+      const all = ok.every(Boolean);
+      if (all && !checked) { checked = true; state.calc = (state.calc || 0) + 1; save(); award(`calc-${state.calc}`, 20, 'Set hitungan benar'); checkBadges(); }
+      $('#calcOut').innerHTML = `<p><b>${all ? 'Semua benar.' : `${ok.filter(Boolean).length} dari ${ok.length} kolom benar.`}</b></p>${set.solution ? `<details class="reveal"><summary><i class="ph ph-caret-right" aria-hidden="true"></i>Pembahasan</summary><div class="inner"><p>${rich(set.solution)}</p></div></details>` : ''}`;
+    };
+  };
+  draw();
+}
 
 // ---------- cari ----------
 let INDEX = null;
@@ -705,6 +1040,8 @@ function route() {
   else if (parts[0] === 'tanya') tanya(query);
   else if (parts[0] === 'modul') modulePage(+parts[1], parts[2]);
   else if (parts[0] === 'latihan') latihan();
+  else if (parts[0] === 'persiapan' && C.prep) persiapan();
+  else if (parts[0] === 'ujian') ujian();
   else if (parts[0] === 'cari') search(new URLSearchParams(query || '').get('q') || '');
   else home();
   if (parts[0] !== 'modul') { bindPageActions(); window.scrollTo(0, 0); }
