@@ -35,7 +35,7 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 | `traps`, `trapsIntro` | larik, opsional | Jebakan di bahan sumber: `[{ where, written, correct, confidence: 'Tinggi' \| 'Sedang' }]`, tampil di Persiapan |
 | `essays` | larik, opsional | Soal esai Mode Ujian: `[{ module, prompt, rubric: [..], answer }]` |
 | `examFormat` | objek, opsional | Format Simulasi ujian penuh: `{ pg, isian, essay, minutes }`, default 15, 10, 5, 150 |
-| `voices` | objek, opsional | Mengaktifkan tombol gaya bahasa Formal dan Santai: `{ formal, santai }` berisi teks tooltip |
+| `voices` | objek, opsional | Mengaktifkan tombol gaya bahasa Dosen (formal) dan Asdos (santai): `{ formal, santai }` berisi teks tooltip |
 | `game` | objek, opsional | `{ levels, badges }`. `badges` menambah lencana khusus topik yang diberikan simulasi lewat `kit.badge(id)` |
 | `gradeRubric` | larik, opsional | Rubrik penilaian AI untuk penjelasan pembaca: `[[kriteria, keterangan], ...]` |
 | `modules` | larik | Isi utama, lihat di bawah |
@@ -75,6 +75,7 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 |---|---|
 | `title` | Istilah kunci modul. Boleh Inggris bila itu bentuk yang umum. |
 | `short` | Judul pendek untuk menu dan peta pokok bahasan, 1 sampai 3 kata, misalnya "Residual & Loss". Pembaca memindai daftar ini untuk tahu apa yang harus dikuasai. |
+| `poster` | Disarankan. Infografis modul lengkap `{ heading?, blocks: [[label, penjelasan, adegan], ...], formula?, takeaway }`, 4 sampai 8 blok. Penjelasan 12 sampai 25 kata per blok dan merangkum isi unit, bukan judulnya saja. Teks Unicode, tanpa LaTeX. Gambarnya `assets/poster-mNN.webp`, tampil di bawah tujuan modul sebelum Inti. |
 | `informal` | Opsional. Versi gaya santai: `{ hook, inti: { beats } }`. Hanya field naratif, definisi tetap formal. |
 | `hook` | Satu kalimat cerita yang memancing rasa ingin tahu |
 | `goal` | Satu tujuan belajar yang bisa diuji |
@@ -89,7 +90,7 @@ Teks lain di-escape, jadi HTML mentah tidak dirender, kecuali di `source`, `foot
 
 | Field | Isi |
 |---|---|
-| `art` | Opsional. Ilustrasi cerita. Tanpa gambar, teks cerita memakai lebar penuh. |
+| `art` | Opsional. Ilustrasi cerita, tampil utuh selebar kolom di atas teks cerita. Buat landscape 3:2 dan jangan taruh hal penting di tepi. Tanpa gambar, teks cerita tetap memakai lebar penuh. |
 | `beats` | Tiga ketukan cerita `[[label, teks], ...]`, misalnya Situasi, Yang terjadi, Mengapa penting |
 | `concept` | Definisi konsep yang memakai cerita tadi. Boleh `**istilah**`. |
 | `mapping` | Tabel "Dari cerita ke istilah": `[[unsur cerita, istilah], ...]` |

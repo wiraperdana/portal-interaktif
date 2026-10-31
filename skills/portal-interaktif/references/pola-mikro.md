@@ -2,6 +2,8 @@
 
 Setiap halaman modul punya tiga bagian dengan urutan tetap. Urutan ini meniru cara orang belajar hal baru: dengar ceritanya dulu, lalu pelajari rinciannya, lalu buktikan bahwa sudah paham.
 
+Di atas ketiga bagian, kepala modul memuat judul, hook, tujuan, lalu **infografis modul** (`poster-mNN.webp`). Infografis ini merangkum seluruh penjelasan modul dalam satu gambar portrait, supaya pembaca melihat peta lengkapnya sebelum masuk cerita. Lihat `visual.md`.
+
 | Bagian | Label | Isi | Kenapa |
 |---|---|---|---|
 | 1 dari 3 | **Inti** | Cerita, Konsep, Dari cerita ke istilah, chip istilah | Memberi gantungan. Istilah baru lebih mudah diingat bila menempel pada cerita. |
@@ -89,3 +91,5 @@ Kuis per modul melatih pemahaman. Mode Ujian melatih kondisi ujian: paket acak d
 ## Gamifikasi
 
 XP, level, dan lencana diberikan hanya untuk tanda paham: jawaban kuis benar, langkah penurunan tanpa bantuan, modul selesai, set hitungan benar, lulus paket ujian, dan tantangan simulasi. Membuka halaman tidak memberi XP. Setiap hadiah punya id, jadi mengulang tidak memberi XP dua kali.
+
+Halaman **Pencapaian** (`#/pencapaian`) menjelaskan semua level beserta ambang XP-nya, tabel cara mendapat XP, dan semua lencana beserta syaratnya. Kotak XP di sidebar menautkan ke halaman ini. Tabel XP diambil dari `XP_RULES` di `app.js`, jadi bila angka `award()` diubah, ubah tabel itu juga. Lencana khusus topik di `game.badges` wajib punya `desc` yang menyebut syaratnya secara konkret, misalnya "Mencapai SSE dalam 1% dari minimum di simulasi Kalahkan OLS".

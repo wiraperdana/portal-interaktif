@@ -262,9 +262,15 @@ main, main:focus, main:focus-visible { flex: 1; outline: none; }
 .sub h3 { font-size: 20px; }
 .sub p { font-size: 17px; color: var(--ink-2); }
 
-.story { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; border: 1px solid var(--line); border-radius: var(--r-block); overflow: hidden; background: var(--surface); }
-.story img { width: 100%; height: 100%; object-fit: cover; min-height: 280px; }
-.story-text { padding: 28px; display: grid; gap: 18px; align-content: center; }
+.story { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; border: 1px solid var(--line); border-radius: var(--r-block); overflow: hidden; background: var(--surface); }
+/* Ilustrasi cerita tampil utuh dengan rasio aslinya di atas teks. Dulu dipotong jadi kotak di samping teks. */
+.story img { width: 100%; height: auto; display: block; }
+.story-text { padding: 24px 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px 24px; align-content: start; }
+/* Infografis modul: satu gambar yang merangkum seluruh modul, di bawah tujuan modul */
+.mod-poster { margin: 28px 0 0; border: 1px solid var(--line); border-radius: var(--r-block); overflow: hidden; background: var(--surface); }
+.mod-poster a { display: block; cursor: zoom-in; }
+.mod-poster img { width: 100%; height: auto; display: block; }
+.mod-poster figcaption { padding: 10px 16px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
 .story-text .beat small { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 2px; }
 .story-text .beat p { font-size: 16.5px; }
 
@@ -710,9 +716,7 @@ a.topic-row:hover { border-color: var(--line-strong); }
   .hero { gap: 28px; }
   .hero .lead { font-size: 17px; }
   .section-head { margin-top: 48px; }
-  .story { grid-template-columns: minmax(0, 1fr); }
-  .story img { min-height: 0; aspect-ratio: 3 / 2; }
-  .story-text { padding: 20px; }
+  .story-text { padding: 20px; grid-template-columns: minmax(0, 1fr); }
   .sim-controls, .stats, .tiles { grid-template-columns: minmax(0, 1fr); }
   .sim > header, .sim-controls, .sim-out { padding-inline: 16px; }
   .sim-predict, .sim-bar, .sim-rules { padding-inline: 16px; }
@@ -741,7 +745,6 @@ a.topic-row:hover { border-color: var(--line-strong); }
 .practice-mod > i { color: var(--good); font-size: 20px; flex: none; }
 .practice-mod.done { border-color: color-mix(in srgb, var(--good) 40%, var(--line)); }
 /* cerita tanpa ilustrasi memakai lebar penuh */
-.story:not(:has(img)) { grid-template-columns: minmax(0, 1fr); }
 
 /* Notasi matematika (KaTeX, lib/katex). Ukuran mengikuti teks sekitar, rumus blok boleh digulir di layar sempit. */
 .katex { font-size: 1.06em; }
@@ -871,3 +874,18 @@ a.topic-row:hover { border-color: var(--line-strong); }
 .sim-metrics { overflow-x: auto; }
 .sim .btn.on { border-color: var(--accent); background: var(--accent-soft); }
 .kc-steps { padding-left: 20px; display: grid; gap: 8px; }
+
+/* Halaman Pencapaian: level, lencana, dan cara mendapat XP */
+.xp-link { color: inherit; text-decoration: none; display: grid; gap: 6px; border-radius: 8px; }
+.xp-link:hover .xp-head strong { text-decoration: underline; }
+.level-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.level-list li { padding: 14px; border: 1px dashed var(--line-strong); border-radius: var(--r-block); display: grid; gap: 2px; }
+.level-list li strong { font-size: 15px; }
+.level-list li small { font: 600 12px var(--mono); color: var(--muted); }
+.level-list li.got { border-style: solid; border-color: var(--accent); }
+.level-list li.now { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.xp-rules { width: 100%; border-collapse: collapse; font-size: 15px; }
+.xp-rules th, .xp-rules td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.xp-rules td:nth-child(2) { font: 600 13px var(--mono); white-space: nowrap; }
+.badges li .how { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); }
+.toast[hidden] { display: none; }

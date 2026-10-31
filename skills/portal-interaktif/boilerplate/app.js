@@ -32,7 +32,7 @@ const pad = n => String(n).padStart(2, '0');
 // Bab atau kelompok modul. Warna tiap kelompok diambil dari token --ch1 sampai --ch4 di style.css.
 const BAB = C.chapters.map((c, idx) => ({ ...c, idx, cls: `ch-${idx + 1}`, mods: C.modules.map((m, i) => (m.chapter === idx ? i : -1)).filter(i => i >= 0) }));
 const babOf = i => BAB[C.modules[i].chapter];
-// Gaya bahasa: 'formal' atau 'santai'. Saat santai, field di objek informal menimpa field biasa
+// Gaya bahasa: 'formal' (label Dosen) atau 'santai' (label Asdos). Nilai internal tetap formal dan santai. Saat santai, field di objek informal menimpa field biasa
 // (modul, unit, persiapan). Definisi, rumus, dan kuis tetap sama di kedua gaya.
 const voice = () => (C.voices && state.voice === 'santai' ? 'santai' : 'formal');
 const vx = o => (o && voice() === 'santai' && o.informal ? { ...o, ...o.informal } : o);
@@ -133,9 +133,33 @@ function renderXp() {
   const el = document.getElementById('xpBox');
   if (!el) return;
   const L = levelOf(state.xp), pct = L.next ? Math.round((state.xp - L.floor) / (L.next - L.floor) * 100) : 100;
-  el.innerHTML = `<div class="xp-head"><strong><i class="ph ph-lightning" aria-hidden="true"></i>${esc(L.name)}</strong><span>${state.xp} XP</span></div>
+  el.innerHTML = `<a class="xp-link" href="#/pencapaian" aria-label="Lihat level, lencana, dan cara mendapat XP"><div class="xp-head"><strong><i class="ph ph-lightning" aria-hidden="true"></i>${esc(L.name)}</strong><span>${state.xp} XP</span></div>
     <div class="xp-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Kemajuan ke level berikutnya"><span style="width:${pct}%"></span></div>
-    <small>${L.next ? `${L.next - state.xp} XP lagi ke ${esc(LEVELS[L.k + 1][1])} · ${Object.keys(state.badges).length}/${BADGES.length} lencana` : `Level tertinggi · ${Object.keys(state.badges).length}/${BADGES.length} lencana`}</small>`;
+    <small>${L.next ? `${L.next - state.xp} XP lagi ke ${esc(LEVELS[L.k + 1][1])} · ${Object.keys(state.badges).length}/${BADGES.length} lencana` : `Level tertinggi · ${Object.keys(state.badges).length}/${BADGES.length} lencana`}</small></a>`;
+}
+// Aturan XP yang ditampilkan di halaman Pencapaian. Angkanya harus sama dengan panggilan award() di berkas ini.
+const XP_RULES = [
+  ['Menjawab benar satu soal kuis modul', 10, 'Sekali per soal'],
+  ['Menulis penjelasan dengan bahasamu (minimal 40 karakter)', 10, 'Sekali per modul'],
+  ['Menyelesaikan modul (kuis lulus dan penjelasan ditulis)', 50, 'Sekali per modul'],
+  ['Menjawab benar satu cek bekal di Persiapan', 5, 'Sekali per soal'],
+  ['Memilih langkah penurunan yang benar tanpa membuka bantuan', 5, 'Sekali per langkah'],
+  ['Menuntaskan satu penurunan tanpa membuka bantuan', 20, 'Sekali per penurunan'],
+  ['Menjawab benar semua kolom satu set latihan hitung acak', 20, 'Setiap set baru'],
+  ['Mendapat minimal 80% di satu paket Mode Ujian', 50, 'Sekali per paket'],
+  ['Menyelesaikan tantangan di simulasi', 'beragam', 'Tertulis di simulasinya'],
+];
+function pencapaian() {
+  frame('/pencapaian', [[T.short, '/'], ['Pencapaian']]);
+  const L = levelOf(state.xp);
+  show(`<div class="page-head"><h1>Pencapaian</h1><p>XP hanya diberikan untuk tanda paham: jawaban benar, penurunan, dan modul selesai. Membuka halaman tidak memberi XP, dan setiap hadiah hanya bisa didapat sekali. Kamu sekarang di level <b>${esc(L.name)}</b> dengan ${state.xp} XP.</p></div>
+  <div class="section-head"><h2>Level</h2></div>
+  <ol class="level-list">${LEVELS.map(([t, n], j) => `<li class="${state.xp >= t ? 'got' : ''} ${j === L.k ? 'now' : ''}"><strong>${esc(n)}</strong><small>${t} XP</small>${j === L.k ? '<small>Level kamu sekarang</small>' : ''}</li>`).join('')}</ol>
+  <div class="section-head"><h2>Cara mendapat XP</h2></div>
+  <div class="table-wrap"><table class="xp-rules"><thead><tr><th>Yang dilakukan</th><th>XP</th><th>Berlaku</th></tr></thead><tbody>${XP_RULES.map(([a, x, n]) => `<tr><td>${esc(a)}</td><td>${typeof x === 'number' ? '+' + x : esc(x)}</td><td>${esc(n)}</td></tr>`).join('')}</tbody></table></div>
+  <div class="section-head"><h2>Lencana (${Object.keys(state.badges).length}/${BADGES.length})</h2></div>
+  <p class="muted">Lencana yang sudah didapat bergaris tegas. Tiap kartu menyebut syarat mendapatkannya.</p>
+  ${badgeList()}`);
 }
 function badgeList() {
   return `<ul class="badges">${BADGES.map(b => `<li class="${state.badges[b.id] ? 'got' : ''}"><i class="ph ph-${b.icon}" aria-hidden="true"></i><div><strong>${esc(b.title)}</strong><small>${esc(b.desc)}</small></div>${state.badges[b.id] ? '<span class="sr">sudah didapat</span>' : ''}</li>`).join('')}</ul>`;
@@ -154,9 +178,9 @@ if (C.voices) {
   vb.className = 'icon-btn voice-btn'; vb.type = 'button'; vb.id = 'voiceToggle'; vb.dataset.tipPos = 'bottom';
   const label = () => {
     const s = voice() === 'santai';
-    vb.innerHTML = `<i class="ph ph-chat-circle-text" aria-hidden="true"></i><span>${s ? 'Santai' : 'Formal'}</span>`;
-    vb.setAttribute('aria-label', `Gaya bahasa ${s ? 'santai' : 'formal'}. Klik untuk mengganti.`);
-    vb.dataset.tip = s ? (C.voices.formal || 'Ganti ke gaya formal') : (C.voices.santai || 'Ganti ke gaya santai');
+    vb.innerHTML = `<i class="ph ph-chat-circle-text" aria-hidden="true"></i><span>${s ? 'Asdos' : 'Dosen'}</span>`;
+    vb.setAttribute('aria-label', `Gaya bahasa ${s ? 'Asdos, santai' : 'Dosen, formal'}. Klik untuk mengganti.`);
+    vb.dataset.tip = s ? (C.voices.formal || 'Ganti ke gaya Dosen: formal') : (C.voices.santai || 'Ganti ke gaya Asdos: santai, seperti asisten dosen menjelaskan');
   };
   label();
   vb.onclick = () => { state.voice = voice() === 'santai' ? 'formal' : 'santai'; save(); label(); route(); };
@@ -222,7 +246,7 @@ document.addEventListener('click', e => {
 });
 
 // ---------- kerangka ----------
-const NAV = [['/', 'Beranda topik', 'house'], ...(C.prep ? [['/persiapan', 'Persiapan', 'compass']] : []), ['/latihan', 'Latihan', 'target'], ['/ujian', 'Mode Ujian', 'exam'], ['/tanya', 'Tanya AI', 'sparkle']];
+const NAV = [['/', 'Beranda topik', 'house'], ...(C.prep ? [['/persiapan', 'Persiapan', 'compass']] : []), ['/latihan', 'Latihan', 'target'], ['/ujian', 'Mode Ujian', 'exam'], ['/pencapaian', 'Pencapaian', 'trophy'], ['/tanya', 'Tanya AI', 'sparkle']];
 const TABS = [['/', 'Beranda', 'house'], ...(C.prep ? [['/persiapan', 'Persiapan', 'compass']] : []), ['/latihan', 'Latihan', 'target'], ['/ujian', 'Ujian', 'exam'], ['/kursus', 'Topik', 'squares-four']];
 function frame(section, crumbs, currentModule) {
   const link = ([href, label, icon]) => `<a href="#${href}" ${section === href ? 'aria-current="page"' : ''}><i class="ph ph-${icon}" aria-hidden="true"></i><span>${label}</span></a>`;
@@ -431,6 +455,8 @@ function stepItem(x) {
 }
 // Slide infografis per sub-modul: gambar dari /claude-imagegen (source-art/slide-briefs/).
 // Nama berkas mengikuti pola slide-m<modul>-<urutan>. Unit tanpa gambar tampil tanpa slide.
+// Infografis modul memakai nama baku assets/poster-mNN.webp. Tampil otomatis bila berkasnya ada.
+const posterName = i => `poster-m${pad(i + 1)}`;
 const slideName = (i, k) => `slide-m${pad(i + 1)}-${pad(k + 1)}`;
 const hasSlide = (i, k) => !!P.imageSizes[slideName(i, k)];
 // Teks alternatif diambil dari poin slide di lessons.js, supaya isinya tetap terbaca oleh pembaca layar.
@@ -568,6 +594,7 @@ function modulePage(num, anchor) {
       <h1>${esc(m.title)}</h1>
       <p class="hook">${esc(m.hook)}</p>
       <div class="mod-meta"><span><i class="ph ph-target" aria-hidden="true"></i>${esc(m.goal)}</span><span id="modStatus"></span></div>
+      ${P.imageSizes[posterName(i)] ? `<figure class="mod-poster" id="infografis"><a href="assets/${posterName(i)}.webp" target="_blank" rel="noopener">${img(posterName(i), `Infografis lengkap ${m.title}`, 'loading="lazy"')}</a><figcaption>Infografis modul: seluruh pembahasan dalam satu gambar. Klik untuk memperbesar.</figcaption></figure>` : ''}
     </header>
 
     <section class="part" id="inti">
@@ -1042,6 +1069,7 @@ function route() {
   else if (parts[0] === 'latihan') latihan();
   else if (parts[0] === 'persiapan' && C.prep) persiapan();
   else if (parts[0] === 'ujian') ujian();
+  else if (parts[0] === 'pencapaian') pencapaian();
   else if (parts[0] === 'cari') search(new URLSearchParams(query || '').get('q') || '');
   else home();
   if (parts[0] !== 'modul') { bindPageActions(); window.scrollTo(0, 0); }

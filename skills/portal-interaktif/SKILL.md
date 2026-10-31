@@ -82,13 +82,18 @@ Baca `references/visual.md`. Ringkasnya:
 
 1. **Diagram dari sumber** (figure buku, bagan slide) dipotong dari PDF jadi WebP, lalu didaftarkan di `diagrams`. Diagram tidak dibuat ulang dengan imagegen.
 2. **Ilustrasi** (hero beranda, cerita Inti, art di unit) dibuat lewat `/claude-imagegen`. Ilustrasi pertama menjadi rujukan gaya untuk semua gambar sesudahnya.
-3. **Slide infografis per unit**: isi `slide.scenes`, lalu
+3. **Infografis modul** (gambar terpenting): isi `module.poster`, lalu
+   ```bash
+   node scripts/poster-briefs.cjs <portal> [--module N]
+   scripts/gen-slides.sh <portal> <portal>/source-art/<rujukan>.png 'poster-m*'
+   ```
+4. **Slide infografis per unit**: isi `slide.scenes`, lalu
    ```bash
    node scripts/slide-briefs.cjs <portal> [--module N]
    scripts/gen-slides.sh <portal> <portal>/source-art/<rujukan>.png
    ```
-4. **Periksa setiap gambar secara visual.** Ejaan label, arah panah, jumlah panel, dan teks liar wajib dicek. Perbaiki dengan revisi sempit (gambar lama sebagai `--ref`), bukan generate ulang dari nol.
-5. Jalankan `node scripts/image-sizes.cjs <portal>` setiap kali gambar berubah.
+5. **Periksa setiap gambar secara visual.** Ejaan label, arah panah, jumlah panel, dan teks liar wajib dicek. Perbaiki dengan revisi sempit (gambar lama sebagai `--ref`), bukan generate ulang dari nol.
+6. Jalankan `node scripts/image-sizes.cjs <portal>` setiap kali gambar berubah.
 
 ### 6. Simulasi, Mode Ujian, dan gamifikasi
 
@@ -129,6 +134,7 @@ Laporkan ke pengguna: jumlah modul, unit, soal, gambar, hasil QA, dan apa yang b
 | `templates/content.template.js` | Titik awal `content.js` dengan komentar per field |
 | `scripts/new-portal.sh` | Salin boilerplate ke folder baru |
 | `scripts/image-sizes.cjs` | Tulis `images.js` dari isi `assets/` |
+| `scripts/poster-briefs.cjs` | Susun brief infografis modul dari `module.poster` |
 | `scripts/slide-briefs.cjs` | Susun brief slide per unit dari `content.js` |
 | `scripts/gen-slides.sh` | Jalankan `/claude-imagegen` untuk semua brief slide |
 | `scripts/qa.py` | QA otomatis dengan Playwright, plus mode banding dua portal |

@@ -6,6 +6,7 @@ Portal memakai tiga jenis gambar dengan asal yang berbeda. Membedakannya penting
 |---|---|---|---|
 | Diagram | Dipotong dari sumber (figure buku, bagan slide) | `diagram-<nama>.webp` | Teks terlalu kecil, potongan terpotong |
 | Ilustrasi | `/claude-imagegen` | `<nama>.webp` | Gaya tidak seragam, teks liar di gambar |
+| Infografis modul | `/claude-imagegen` dari brief `poster-briefs.cjs` | `poster-m<MM>.webp`, portrait 2:3 | Salah eja penjelasan, blok hilang, rumus keliru |
 | Slide infografis | `/claude-imagegen` dari brief `slide-briefs.cjs` | `slide-m<MM>-<KK>.webp` | Salah eja label, jumlah panel salah, isi keliru |
 
 Semua gambar WebP, dan ukurannya didaftarkan ulang lewat `node scripts/image-sizes.cjs <portal>`.
@@ -60,3 +61,16 @@ Brief revisi berbunyi seperti: "Edit the attached image. Keep everything identic
 ## Biaya
 
 Setiap gambar memakai kuota ChatGPT pengguna, dan brief serta gambar rujukannya terkirim ke OpenAI. Sebutkan jumlah gambar sebelum mulai, dan jangan generate tanpa izin.
+
+## Infografis modul (poster)
+
+Gambar terpenting di setiap modul. Ia merangkum **seluruh penjelasan** modul dalam satu gambar, jadi pembaca bisa memahami modul dengan sekali lihat, lalu memakai unit Pendalaman untuk detailnya. Tempatnya di bawah tujuan modul, sebelum bagian Inti. Portal memasangnya otomatis bila `assets/poster-mNN.webp` ada.
+
+1. Tulis `module.poster` di `content.js`: 4 sampai 8 blok, satu per gagasan penting. Tiap blok berisi label pendek dan penjelasan 12 sampai 25 kata yang benar-benar menjelaskan, misalnya "Residual adalah selisih nilai asli dan prediksi. Positif berarti model menebak terlalu rendah." Judul unit saja tidak cukup.
+2. `node scripts/poster-briefs.cjs <portal> [--module N]`, baca briefnya.
+3. `scripts/gen-slides.sh <portal> <rujukan.png> 'poster-m*'`.
+4. Periksa ejaan **setiap kalimat** penjelasan dan rumusnya. Teks panjang lebih rawan salah eja daripada label slide, jadi revisi sempit sering perlu.
+
+## Ilustrasi cerita Inti
+
+Ilustrasi cerita tampil utuh selebar kolom, di atas teks cerita, dengan rasio aslinya. Tidak ada pemotongan. Buat landscape 3:2 dan isi seluruh bidang dengan adegan, karena tidak ada lagi bagian yang tersembunyi.

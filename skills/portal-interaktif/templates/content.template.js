@@ -57,7 +57,7 @@ window.CONTENT = {
   simulations: {},
 
   // Opsional, lihat references/content-schema.md: prep (halaman Persiapan), traps, essays, examFormat,
-  // voices (gaya Formal dan Santai), game.badges (lencana khusus topik).
+  // voices (gaya Dosen yang formal dan Asdos yang santai), game.badges (lencana khusus topik).
 
   modules: [
     {
@@ -70,6 +70,12 @@ window.CONTENT = {
       terms: ['istilah utama'],            // chip istilah di bagian Inti
 
       // Bagian 1: Inti. Satu cerita sehari-hari, lalu konsepnya, lalu peta cerita ke istilah.
+      // Infografis modul lengkap, portrait 2:3, tampil di bawah tujuan modul. Lihat references/visual.md.
+      poster: {
+        blocks: [['Label maks 5 kata', 'Penjelasan singkat 12 sampai 25 kata yang bisa berdiri sendiri.', 'english scene for the small illustration']],
+        formula: '',                       // opsional, rumus kunci dalam Unicode
+        takeaway: '',
+      },
       inti: {
         art: '',                           // opsional, ilustrasi cerita
         beats: [['Situasi', 'Kalimat situasi.'], ['Yang terjadi', 'Kalimat kejadian.'], ['Mengapa penting', 'Kalimat alasan.']],

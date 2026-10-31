@@ -44,7 +44,7 @@ Rute tambahan: `#/persiapan` dan `#/ujian`. Rute modul adalah `#/modul/N`, unit 
 - [ ] Satu unit berumus dibuka di 390 px: rumus blok terbaca, tidak terpotong.
 - [ ] Daftar periksa `standar-a.md` terpenuhi: cakupan penuh, Kilas prasyarat, contoh angka per rumus, dan kuis berisi soal hitungan.
 - [ ] Jalankan satu Simulasi ujian penuh sampai dikumpulkan, dan satu penurunan sampai tuntas.
-- [ ] Ganti ke gaya Santai dan baca satu modul: naratif berubah, definisi tetap.
+- [ ] Ganti ke gaya Asdos dan baca satu modul: naratif berubah, definisi tetap.
 - [ ] Tidak ada em dash di `content.js`: `grep -c $'\u2014' content.js` harus 0.
 - [ ] Istilah di judul, definisi, kamus, kuis, dan slide konsisten.
 

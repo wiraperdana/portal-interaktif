@@ -51,7 +51,7 @@ OVERLAP_JS = """() => { let n = 0; document.querySelectorAll('.mmx:not(.is-outli
 def routes(page):
     n = page.evaluate("(window.CONTENT || window.PORTAL).modules.length")
     extra = ['#/persiapan'] if page.evaluate("!!(window.CONTENT && window.CONTENT.prep)") else []
-    return ['#/', '#/kursus', '#/latihan', '#/ujian', '#/tanya'] + extra + [f'#/modul/{i}' for i in range(1, n + 1)]
+    return ['#/', '#/kursus', '#/latihan', '#/ujian', '#/pencapaian', '#/tanya'] + extra + [f'#/modul/{i}' for i in range(1, n + 1)]
 
 
 def visit(page, url, route):
