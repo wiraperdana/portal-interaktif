@@ -1,9 +1,9 @@
 ---
-name: buat-portal-interaktif
-description: Ubah bahan belajar apa pun (slide PDF atau PPTX, transkrip, video, gambar, catatan, buku, attachment lain) menjadi portal belajar interaktif statis berbahasa Indonesia. Portalnya punya beranda topik, mindmap tiga lapis yang bisa dilipat, modul berpola mikro (Inti, Pendalaman, Cek pemahaman), slide infografis per sub-modul dari /claude-imagegen, kamus istilah, kuis 5 soal x 5 opsi, syarat selesai modul, pencarian, dan mode gelap. Semua berjalan dari file:// tanpa server. Pakai saat pengguna meminta "buat portal belajar", "portal interaktif", "/buat-portal-interaktif", atau ingin materi kuliah, pelatihan, atau workshop dijadikan halaman belajar mandiri.
+name: portal-interaktif
+description: Ubah bahan belajar apa pun (slide PDF atau PPTX, transkrip, video, gambar, catatan, buku, attachment lain) menjadi portal belajar interaktif statis berbahasa Indonesia. Portalnya punya beranda topik, mindmap tiga lapis yang bisa dilipat, modul berpola mikro (Inti, Pendalaman, Cek pemahaman), slide infografis per sub-modul dari /claude-imagegen, kamus istilah, kuis 5 soal x 5 opsi, syarat selesai modul, pencarian, dan mode gelap. Semua berjalan dari file:// tanpa server. Pakai saat pengguna meminta "buat portal belajar", "portal interaktif", "/portal-interaktif", atau ingin materi kuliah, pelatihan, atau workshop dijadikan halaman belajar mandiri.
 ---
 
-# buat-portal-interaktif
+# portal-interaktif
 
 Skill ini membuat portal belajar dari bahan mentah. Kodenya sudah jadi di `boilerplate/`. Tugas agent adalah **menulis isinya**, yaitu satu berkas `content.js`, lalu membuat gambarnya dan memeriksa hasilnya.
 

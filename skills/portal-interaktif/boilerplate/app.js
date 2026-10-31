@@ -1,4 +1,4 @@
-// Portal belajar interaktif, boilerplate skill /buat-portal-interaktif.
+// Portal belajar interaktif, boilerplate skill /portal-interaktif.
 // Semua isi dibaca dari content.js (window.CONTENT) dan images.js (window.IMAGE_SIZES).
 // Kode ini tidak memuat isi topik apa pun; ganti content.js untuk membuat portal baru.
 (() => {

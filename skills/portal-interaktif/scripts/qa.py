@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""QA otomatis portal belajar hasil boilerplate /buat-portal-interaktif.
+"""QA otomatis portal belajar hasil boilerplate /portal-interaktif.
 
 Pakai:
   python3 qa.py <folder-portal>                      # periksa satu portal

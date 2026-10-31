@@ -1,6 +1,6 @@
 # portal-interaktif
 
-Skill agent `/buat-portal-interaktif` untuk mengubah bahan belajar (slide, transkrip, video, gambar, catatan) menjadi portal belajar interaktif statis berbahasa Indonesia.
+Skill agent `/portal-interaktif` untuk mengubah bahan belajar (slide, transkrip, video, gambar, catatan) menjadi portal belajar interaktif statis berbahasa Indonesia.
 
 Portal yang dihasilkan berjalan dari `file://` tanpa server, dan berisi:
 
@@ -12,13 +12,13 @@ Portal yang dihasilkan berjalan dari `file://` tanpa server, dan berisi:
 
 ## Cara kerja singkat
 
-Kode portal sudah jadi di `boilerplate/`. Agent hanya menulis `content.js`, membuat gambar, lalu menjalankan QA. Prosedur lengkapnya di [`skills/buat-portal-interaktif/SKILL.md`](skills/buat-portal-interaktif/SKILL.md).
+Kode portal sudah jadi di `boilerplate/`. Agent hanya menulis `content.js`, membuat gambar, lalu menjalankan QA. Prosedur lengkapnya di [`skills/portal-interaktif/SKILL.md`](skills/portal-interaktif/SKILL.md).
 
 ```bash
-skills/buat-portal-interaktif/scripts/new-portal.sh ./portal-saya
+skills/portal-interaktif/scripts/new-portal.sh ./portal-saya
 # tulis portal-saya/content.js
-node skills/buat-portal-interaktif/scripts/image-sizes.cjs ./portal-saya
-python3 skills/buat-portal-interaktif/scripts/qa.py ./portal-saya
+node skills/portal-interaktif/scripts/image-sizes.cjs ./portal-saya
+python3 skills/portal-interaktif/scripts/qa.py ./portal-saya
 ```
 
 ## Pemasangan
